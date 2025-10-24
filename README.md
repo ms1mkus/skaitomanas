@@ -9,7 +9,7 @@
 - Back-End: **Node.js (Express.js)**
 - Duomenų bazė: **PostgreSQL**
 
-## 🧱 Naudojamos technologijos
+## Naudojamos technologijos
 
 - **Node.js 20 LTS** + **TypeScript**
 - **Fastify** web karkasas
