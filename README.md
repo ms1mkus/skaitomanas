@@ -16,8 +16,5 @@
 - **PostgreSQL 15** (native `pg` bibliotekas)
 - **JWT** autentikacijai
 - **Zod** lengvai formu validacijai
-- **pino** logginimui
-- **Jest** testing
-- **OpenAPI 3.0** + **Swagger UI**
-- **Docker Compose**
-- **ESLint** + **Prettier**
+- **OpenAPI** + **Swagger UI**
+- **Docker**
