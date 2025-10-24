@@ -9,7 +9,7 @@ export async function commentRoutes(
   commentController: CommentController
 ): Promise<void> {
   fastify.get(
-    '/:chapterId/comments',
+    '/chapters/:chapterId/comments',
     {
       schema: {
         tags: ['Comments'],
@@ -36,7 +36,7 @@ export async function commentRoutes(
     commentController.getCommentsByChapterId.bind(commentController)
   );
 
-  fastify.post('/:chapterId/comments', {
+  fastify.post('/chapters/:chapterId/comments', {
     schema: {
       tags: ['Comments'],
       description: 'Pridėti komentarą (tik registruotiems vartotojams)',

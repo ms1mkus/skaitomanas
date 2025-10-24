@@ -106,7 +106,7 @@ export async function createApp() {
     async (instance: FastifyInstance) => {
       await commentRoutes(instance, commentController);
     },
-    { prefix: '/chapters' }
+    { prefix: '' }
   );
 
   await app.register(
