@@ -1,0 +1,66 @@
+export const messages = {
+  auth: {
+    registerSuccess: 'Registracija sėkminga',
+    loginSuccess: 'Prisijungimas sėkmingas',
+    invalidCredentials: 'Neteisingi prisijungimo duomenys',
+    emailExists: 'El. paštas jau užregistruotas',
+    usernameExists: 'Vartotojo vardas jau užimtas',
+    unauthorized: 'Neautorizuotas',
+    forbidden: 'Prieiga uždrausta',
+    tokenExpired: 'Sesija baigėsi',
+    invalidToken: 'Netinkamas autentifikacijos raktas',
+  },
+  user: {
+    notFound: 'Vartotojas nerastas',
+    profileRetrieved: 'Profilis gautas',
+  },
+  book: {
+    created: 'Knyga sukurta',
+    updated: 'Knyga atnaujinta',
+    deleted: 'Knyga ištrinta',
+    notFound: 'Knyga nerasta',
+    listRetrieved: 'Knygų sąrašas gautas',
+    detailsRetrieved: 'Knygos detalės gautos',
+    recommendationsRetrieved: 'Rekomendacijos gautos',
+    notAuthor: 'Jūs nesate šios knygos autorius',
+  },
+  chapter: {
+    created: 'Skyrius sukurtas',
+    updated: 'Skyrius atnaujintas',
+    deleted: 'Skyrius ištrintas',
+    notFound: 'Skyrius nerastas',
+    listRetrieved: 'Skyrių sąrašas gautas',
+    retrieved: 'Skyrius gautas',
+    notAuthor: 'Jūs nesate šio skyriaus autorius',
+  },
+  comment: {
+    created: 'Komentaras sukurtas',
+    updated: 'Komentaras atnaujintas',
+    deleted: 'Komentaras ištrintas',
+    notFound: 'Komentaras nerastas',
+    listRetrieved: 'Komentarų sąrašas gautas',
+    notOwner: 'Jūs nesate komentaro autorius',
+  },
+  collection: {
+    added: 'Knyga pridėta į mėgstamiausius',
+    removed: 'Knyga pašalinta iš mėgstamiausių',
+    listRetrieved: 'Mėgstamų knygų sąrašas gautas',
+    alreadyExists: 'Knyga jau pridėta į mėgstamiausius',
+    notFound: 'Knyga nerasta mėgstamiausių sąraše',
+  },
+  history: {
+    retrieved: 'Skaitymo istorija gauta',
+    recorded: 'Skaitymo progresas įrašytas',
+  },
+  stats: {
+    retrieved: 'Statistika gauta',
+  },
+  validation: {
+    invalidData: 'Netinkami duomenys',
+    missingFields: 'Trūksta privalomų laukų',
+  },
+  server: {
+    error: 'Serverio klaida',
+    notFound: 'Resursas nerastas',
+  },
+};
