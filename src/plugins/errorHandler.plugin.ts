@@ -8,7 +8,19 @@ import { logger } from '../utils/logger';
 
 async function errorHandlerPlugin(fastify: FastifyInstance): Promise<void> {
   fastify.setErrorHandler(
-    async (error: FastifyError | AppError | ZodError, request: FastifyRequest, reply: FastifyReply) => {
+    async (
+      error: FastifyError | AppError | ZodError,
+      request: FastifyRequest,
+      reply: FastifyReply
+    ) => {
+      if ('code' in error && error.code === 'FST_ERR_VALIDATION') {
+        logger.warn(
+          { error: 'validation' in error ? error.validation : error, path: request.url },
+          'Validation error'
+        );
+        return reply.code(422).send(errorResponse(messages.validation.invalidData));
+      }
+
       if (error instanceof ZodError) {
         logger.warn({ error: error.errors, path: request.url }, 'Validation error');
         return reply.code(422).send(errorResponse(messages.validation.invalidData));
@@ -33,4 +45,3 @@ async function errorHandlerPlugin(fastify: FastifyInstance): Promise<void> {
 }
 
 export default fp(errorHandlerPlugin);
-
