@@ -4,7 +4,6 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-// Build pool config safely and validate environment variables.
 const connectionString = process.env.DATABASE_URL;
 
 let poolConfig: any;
@@ -16,7 +15,6 @@ if (connectionString && connectionString.length > 0) {
     connectionTimeoutMillis: 2000,
   };
 } else {
-  // Fallback to individual env vars
   const host = process.env.DATABASE_HOST || 'localhost';
   const port = process.env.DATABASE_PORT ? Number(process.env.DATABASE_PORT) : 5432;
   const user = process.env.DATABASE_USER;
@@ -24,7 +22,6 @@ if (connectionString && connectionString.length > 0) {
   const database = process.env.DATABASE_NAME || process.env.DATABASE_DB || undefined;
 
   if (password != null && typeof password !== 'string') {
-    // Coerce to string if a non-string value somehow ended up here
     password = String(password);
   }
 
