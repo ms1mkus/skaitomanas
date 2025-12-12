@@ -28,7 +28,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgresql://${DB_USER:-skaitomanas}:${DB_PASSWORD:-changeme}@db:5432/${DB_NAME:-skaitomanas}
+
       DATABASE_HOST: db
       DATABASE_PORT: 5432
       DATABASE_USER: ${DB_USER:-skaitomanas}
