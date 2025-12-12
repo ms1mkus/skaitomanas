@@ -30,7 +30,10 @@ export class ChapterRepository {
     );
   }
 
-  async findByBookIdAndChapterNumber(bookId: string, chapterNumber: number): Promise<Chapter | null> {
+  async findByBookIdAndChapterNumber(
+    bookId: string,
+    chapterNumber: number
+  ): Promise<Chapter | null> {
     const result = await query<Chapter>(
       'SELECT * FROM chapters WHERE book_id = $1 AND chapter_number = $2',
       [bookId, chapterNumber]
@@ -83,5 +86,3 @@ export class ChapterRepository {
     return parseInt(result[0].count, 10);
   }
 }
-
-

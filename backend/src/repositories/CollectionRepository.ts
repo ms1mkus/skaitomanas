@@ -13,10 +13,10 @@ export class CollectionRepository {
   }
 
   async remove(userId: string, bookId: string): Promise<boolean> {
-    const result = await query(
-      'DELETE FROM collections WHERE user_id = $1 AND book_id = $2',
-      [userId, bookId]
-    );
+    const result = await query('DELETE FROM collections WHERE user_id = $1 AND book_id = $2', [
+      userId,
+      bookId,
+    ]);
     return (result as unknown as { rowCount: number }).rowCount > 0;
   }
 
@@ -40,5 +40,3 @@ export class CollectionRepository {
     return result[0].exists;
   }
 }
-
-

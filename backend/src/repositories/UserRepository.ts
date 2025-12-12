@@ -43,5 +43,3 @@ export class UserRepository {
     return result[0].exists;
   }
 }
-
-

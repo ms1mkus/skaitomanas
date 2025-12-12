@@ -53,13 +53,16 @@ export class ReadingHistoryRepository {
     return parseInt(result[0].count, 10);
   }
 
-  async getMostReadBookByAuthorId(authorId: string): Promise<{ id: string; title: string; read_count: number } | null> {
+  async getMostReadBookByAuthorId(
+    authorId: string
+  ): Promise<{ id: string; title: string; read_count: number } | null> {
     const result = await query<{ id: string; title: string; read_count: string }>(
       `SELECT b.id, b.title, COUNT(DISTINCT rh.user_id) as read_count 
        FROM books b 
        LEFT JOIN reading_history rh ON b.id = rh.book_id 
        WHERE b.author_id = $1 
        GROUP BY b.id, b.title 
+       HAVING COUNT(DISTINCT rh.user_id) > 0 
        ORDER BY read_count DESC 
        LIMIT 1`,
       [authorId]
@@ -72,5 +75,3 @@ export class ReadingHistoryRepository {
     };
   }
 }
-
-

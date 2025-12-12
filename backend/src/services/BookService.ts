@@ -8,7 +8,7 @@ export class BookService {
   constructor(
     private bookRepository: BookRepository,
     private chapterRepository: ChapterRepository
-  ) {}
+  ) { }
 
   async createBook(
     title: string,
@@ -38,6 +38,10 @@ export class BookService {
     offset: number;
   }): Promise<BookWithAuthor[]> {
     return await this.bookRepository.findAll(filters);
+  }
+
+  async getAuthorBooks(authorId: string): Promise<Book[]> {
+    return await this.bookRepository.findByAuthorId(authorId);
   }
 
   async getBookById(bookId: string): Promise<{ book: BookWithAuthor; chapters: Chapter[] }> {
@@ -102,5 +106,3 @@ export class BookService {
     return await this.bookRepository.findSimilar(bookId, book.language, book.tags, limit);
   }
 }
-
-

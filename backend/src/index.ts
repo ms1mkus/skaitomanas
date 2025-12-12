@@ -12,6 +12,10 @@ async function start(): Promise<void> {
   try {
     const app = await createApp();
 
+    app.get('/health', () => {
+      return { status: 'ok', timestamp: new Date().toISOString() };
+    });
+
     await app.listen({ port: PORT, host: HOST });
 
     logger.info(`Server running at http://${HOST}:${PORT}`);
@@ -24,12 +28,12 @@ async function start(): Promise<void> {
       process.exit(0);
     };
 
-    process.on('SIGTERM', () => shutdown('SIGTERM'));
-    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => void shutdown('SIGTERM'));
+    process.on('SIGINT', () => void shutdown('SIGINT'));
   } catch (error) {
     logger.error(error, 'Failed to start server');
     process.exit(1);
   }
 }
 
-start();
+void start();

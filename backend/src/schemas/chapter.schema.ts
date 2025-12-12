@@ -16,5 +16,3 @@ export const updateChapterSchema = z.object({
 
 export type CreateChapterInput = z.infer<typeof createChapterSchema>;
 export type UpdateChapterInput = z.infer<typeof updateChapterSchema>;
-
-

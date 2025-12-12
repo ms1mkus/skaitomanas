@@ -20,17 +20,17 @@ async function authPlugin(fastify: FastifyInstance): Promise<void> {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       try {
-        const payload = authProvider.verifyToken(token);
+        const payload = authProvider.verifyAccessToken(token);
         (request as AuthenticatedRequest).user = {
           userId: payload.userId,
           email: payload.email,
           role: payload.role as UserRole,
         };
       } catch (error) {
+        (request as AuthenticatedRequest).user = undefined;
       }
     }
   });
 }
 
 export default fp(authPlugin);
-

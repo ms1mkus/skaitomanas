@@ -53,5 +53,3 @@ export class CommentRepository {
     return parseInt(result[0].count, 10);
   }
 }
-
-

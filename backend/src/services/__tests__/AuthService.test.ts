@@ -1,18 +1,25 @@
 import { AuthService } from '../AuthService';
-import { JwtAuthProvider } from '../../auth/JwtAuthProvider';
+import { AuthProvider } from '../../auth/AuthProvider';
+import { UserRole } from '../../models';
 import { UserRepository } from '../../repositories/UserRepository';
 import { ConflictError, UnauthorizedError } from '../../utils/errors';
 
 jest.mock('../../repositories/UserRepository');
-jest.mock('../../auth/JwtAuthProvider');
+jest.mock('../../auth/AuthProvider');
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let authProvider: jest.Mocked<JwtAuthProvider>;
+  let authProvider: jest.Mocked<AuthProvider>;
   let userRepository: jest.Mocked<UserRepository>;
 
   beforeEach(() => {
-    authProvider = new JwtAuthProvider() as jest.Mocked<JwtAuthProvider>;
+    authProvider = {
+      hashPassword: jest.fn(),
+      comparePassword: jest.fn(),
+      generateToken: jest.fn(),
+      verifyToken: jest.fn(),
+    } as unknown as jest.Mocked<AuthProvider>;
+
     userRepository = new UserRepository() as jest.Mocked<UserRepository>;
     authService = new AuthService(authProvider, userRepository);
   });
@@ -24,7 +31,7 @@ describe('AuthService', () => {
         email: 'test@example.com',
         password_hash: 'hashedpassword',
         username: 'testuser',
-        role: 'user' as const,
+        role: 'user' as UserRole,
         created_at: new Date(),
         updated_at: new Date(),
       };
@@ -59,7 +66,7 @@ describe('AuthService', () => {
         email: 'test@example.com',
         password_hash: 'hashedpassword',
         username: 'testuser',
-        role: 'user' as const,
+        role: 'user' as UserRole,
         created_at: new Date(),
         updated_at: new Date(),
       };
@@ -83,5 +90,3 @@ describe('AuthService', () => {
     });
   });
 });
-
-

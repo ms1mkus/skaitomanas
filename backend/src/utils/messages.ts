@@ -2,6 +2,8 @@ export const messages = {
   auth: {
     registerSuccess: 'Registracija sėkminga',
     loginSuccess: 'Prisijungimas sėkmingas',
+    logoutSuccess: 'Atsijungimas sėkmingas',
+    tokenRefreshed: 'Raktas atnaujintas',
     invalidCredentials: 'Neteisingi prisijungimo duomenys',
     emailExists: 'El. paštas jau užregistruotas',
     usernameExists: 'Vartotojo vardas jau užimtas',

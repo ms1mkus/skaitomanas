@@ -114,13 +114,17 @@ export class BookRepository {
   }
 
   async findByAuthorId(authorId: string): Promise<Book[]> {
-    return await query<Book>(
-      'SELECT * FROM books WHERE author_id = $1 ORDER BY created_at DESC',
-      [authorId]
-    );
+    return await query<Book>('SELECT * FROM books WHERE author_id = $1 ORDER BY created_at DESC', [
+      authorId,
+    ]);
   }
 
-  async findSimilar(bookId: string, language: string, tags: string[], limit: number): Promise<BookWithAuthor[]> {
+  async findSimilar(
+    bookId: string,
+    language: string,
+    tags: string[],
+    limit: number
+  ): Promise<BookWithAuthor[]> {
     return await query<BookWithAuthor>(
       `SELECT b.*, u.username as author_username, u.email as author_email 
        FROM books b 
@@ -137,5 +141,3 @@ export class BookRepository {
     );
   }
 }
-
-

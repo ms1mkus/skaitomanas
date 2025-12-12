@@ -6,7 +6,7 @@ import { AuthenticatedRequest } from '../auth/guards';
 import { CreateChapterInput, UpdateChapterInput } from '../schemas/chapter.schema';
 
 export class ChapterController {
-  constructor(private chapterService: ChapterService) {}
+  constructor(private chapterService: ChapterService) { }
 
   async createChapter(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
     const { bookId } = request.params as { bookId: string };
@@ -22,13 +22,13 @@ export class ChapterController {
       is_published || false
     );
 
-    reply.code(201).send(successResponse(messages.chapter.created, { chapter }));
+    return reply.code(201).send(successResponse(messages.chapter.created, { chapter }));
   }
 
   async getChaptersByBookId(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
     const { bookId } = request.params as { bookId: string };
     const chapters = await this.chapterService.getChaptersByBookId(bookId);
-    reply.code(200).send(successResponse(messages.chapter.listRetrieved, { chapters }));
+    return reply.code(200).send(successResponse(messages.chapter.listRetrieved, { chapters }));
   }
 
   async getChapterById(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
@@ -36,7 +36,7 @@ export class ChapterController {
     const userId = request.user?.userId;
 
     const chapter = await this.chapterService.getChapterById(bookId, chapterId, userId);
-    reply.code(200).send(successResponse(messages.chapter.retrieved, { chapter }));
+    return reply.code(200).send(successResponse(messages.chapter.retrieved, { chapter }));
   }
 
   async updateChapter(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
@@ -45,7 +45,7 @@ export class ChapterController {
     const updates = request.body as UpdateChapterInput;
 
     const chapter = await this.chapterService.updateChapter(bookId, chapterId, authorId, updates);
-    reply.code(200).send(successResponse(messages.chapter.updated, { chapter }));
+    return reply.code(200).send(successResponse(messages.chapter.updated, { chapter }));
   }
 
   async deleteChapter(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
@@ -53,8 +53,6 @@ export class ChapterController {
     const authorId = request.user!.userId;
 
     await this.chapterService.deleteChapter(bookId, chapterId, authorId);
-    reply.code(204).send();
+    return reply.code(204).send();
   }
 }
-
-

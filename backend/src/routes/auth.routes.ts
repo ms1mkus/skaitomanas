@@ -73,6 +73,62 @@ export async function authRoutes(
     authController.login.bind(authController)
   );
 
+  fastify.post(
+    '/refresh',
+    {
+      schema: {
+        tags: ['Auth'],
+        description: 'Atnaujinti prieigos tokeną',
+        body: {
+          type: 'object',
+          required: ['refreshToken'],
+          properties: {
+            refreshToken: { type: 'string' },
+          },
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              message: { type: 'string' },
+              data: { type: 'object', additionalProperties: true },
+            },
+          },
+        },
+      },
+    },
+    authController.refresh.bind(authController)
+  );
+
+  fastify.post(
+    '/logout',
+    {
+      schema: {
+        tags: ['Auth'],
+        description: 'Atsijungti iš sistemos',
+        body: {
+          type: 'object',
+          required: ['refreshToken'],
+          properties: {
+            refreshToken: { type: 'string' },
+          },
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              message: { type: 'string' },
+              data: { type: 'object', additionalProperties: true },
+            },
+          },
+        },
+      },
+    },
+    authController.logout.bind(authController)
+  );
+
   fastify.get(
     '/me',
     {

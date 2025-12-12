@@ -1,8 +1,10 @@
 export interface AuthProvider {
   hashPassword(password: string): Promise<string>;
   comparePassword(password: string, hash: string): Promise<boolean>;
-  generateToken(payload: TokenPayload): string;
-  verifyToken(token: string): TokenPayload;
+  generateAccessToken(payload: TokenPayload): string;
+  generateRefreshToken(payload: TokenPayload): string;
+  verifyAccessToken(token: string): TokenPayload;
+  verifyRefreshToken(token: string): TokenPayload;
 }
 
 export interface TokenPayload {
@@ -10,5 +12,3 @@ export interface TokenPayload {
   email: string;
   role: string;
 }
-
-

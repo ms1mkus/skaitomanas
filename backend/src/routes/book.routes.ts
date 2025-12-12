@@ -43,6 +43,29 @@ export async function bookRoutes(
   );
 
   fastify.get(
+    '/my-books',
+    {
+      schema: {
+        tags: ['Books'],
+        description: 'Gauti prisijungusio autoriaus knygas (įskaitant juodraščius)',
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              message: { type: 'string' },
+              data: { type: 'object', additionalProperties: true },
+            },
+          },
+        },
+      },
+      preHandler: [requireAuth, requireRole([UserRole.AUTHOR, UserRole.ADMIN])],
+    },
+    bookController.getMyBooks.bind(bookController)
+  );
+
+  fastify.get(
     '/:bookId',
     {
       schema: {

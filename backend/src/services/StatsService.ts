@@ -53,5 +53,3 @@ export class StatsService {
     return await this.readingHistoryRepository.findByUserIdWithChapters(userId);
   }
 }
-
-

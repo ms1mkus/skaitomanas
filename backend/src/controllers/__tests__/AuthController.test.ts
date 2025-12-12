@@ -13,7 +13,6 @@ describe('AuthController', () => {
   beforeEach(() => {
     authService = new AuthService(null as any, null as any) as jest.Mocked<AuthService>;
     authController = new AuthController(authService);
-
     mockReply = {
       code: jest.fn().mockReturnThis(),
       send: jest.fn().mockReturnThis(),

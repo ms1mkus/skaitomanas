@@ -35,5 +35,3 @@ export class CollectionService {
     return await this.collectionRepository.findByUserId(userId);
   }
 }
-
-

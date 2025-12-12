@@ -105,5 +105,3 @@ export class ChapterService {
     await this.chapterRepository.delete(chapterId);
   }
 }
-
-

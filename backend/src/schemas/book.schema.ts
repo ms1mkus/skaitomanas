@@ -29,5 +29,3 @@ export const bookQuerySchema = z.object({
 export type CreateBookInput = z.infer<typeof createBookSchema>;
 export type UpdateBookInput = z.infer<typeof updateBookSchema>;
 export type BookQueryInput = z.infer<typeof bookQuerySchema>;
-
-

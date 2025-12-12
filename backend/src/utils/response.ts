@@ -14,5 +14,3 @@ export const errorResponse = (message: string): ApiResponse => ({
   success: false,
   message,
 });
-
-

@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { Pool, PoolConfig } from 'pg';
 import { logger } from '../utils/logger';
 import * as dotenv from 'dotenv';
 
@@ -6,7 +6,7 @@ dotenv.config();
 
 const connectionString = process.env.DATABASE_URL;
 
-let poolConfig: any;
+let poolConfig: PoolConfig | undefined;
 if (connectionString && connectionString.length > 0) {
   poolConfig = {
     connectionString,
@@ -26,7 +26,7 @@ if (connectionString && connectionString.length > 0) {
   }
 
   if (!user || !password || !database) {
-    logger.error({ user, password, database }, 'Missing required database environment variables');
+    logger.error({ user, database }, 'Missing required database environment variables');
     throw new Error(
       'Database configuration is incomplete. Please set DATABASE_URL or DATABASE_HOST/DATABASE_PORT/DATABASE_USER/DATABASE_PASSWORD/DATABASE_NAME'
     );

@@ -59,5 +59,3 @@ export class CommentService {
     await this.commentRepository.delete(commentId);
   }
 }
-
-

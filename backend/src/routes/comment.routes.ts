@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { CommentController } from '../controllers/CommentController';
-import { requireAuth, requireRole } from '../auth/guards';
+import { requireAuth, requireRole, AuthenticatedRequest } from '../auth/guards';
 import { UserRole } from '../models';
 import { createCommentSchema, updateCommentSchema } from '../schemas/comment.schema';
 
@@ -67,7 +67,7 @@ export async function commentRoutes(
       },
     },
     preHandler: [requireAuth, requireRole([UserRole.USER, UserRole.AUTHOR, UserRole.ADMIN])],
-    handler: async (request: any, reply: FastifyReply) => {
+    handler: async (request: AuthenticatedRequest, reply: FastifyReply) => {
       createCommentSchema.parse(request.body);
       await commentController.createComment(request, reply);
     },
@@ -104,7 +104,7 @@ export async function commentRoutes(
       },
     },
     preHandler: requireAuth,
-    handler: async (request: any, reply: FastifyReply) => {
+    handler: async (request: AuthenticatedRequest, reply: FastifyReply) => {
       updateCommentSchema.parse(request.body);
       await commentController.updateComment(request, reply);
     },

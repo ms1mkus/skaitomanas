@@ -6,7 +6,7 @@ import { AuthenticatedRequest } from '../auth/guards';
 import { CreateBookInput, UpdateBookInput, BookQueryInput } from '../schemas/book.schema';
 
 export class BookController {
-  constructor(private bookService: BookService) {}
+  constructor(private bookService: BookService) { }
 
   async createBook(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
     const { title, description, cover_image_url, language, tags, status } =
@@ -23,7 +23,7 @@ export class BookController {
       status || 'draft'
     );
 
-    reply.code(201).send(successResponse(messages.book.created, { book }));
+    return reply.code(201).send(successResponse(messages.book.created, { book }));
   }
 
   async getBooks(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
@@ -36,13 +36,19 @@ export class BookController {
       offset: query.offset || 0,
     });
 
-    reply.code(200).send(successResponse(messages.book.listRetrieved, { books }));
+    return reply.code(200).send(successResponse(messages.book.listRetrieved, { books }));
+  }
+
+  async getMyBooks(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
+    const authorId = request.user!.userId;
+    const books = await this.bookService.getAuthorBooks(authorId);
+    return reply.code(200).send(successResponse(messages.book.listRetrieved, { books }));
   }
 
   async getBookById(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
     const { bookId } = request.params as { bookId: string };
     const result = await this.bookService.getBookById(bookId);
-    reply.code(200).send(successResponse(messages.book.detailsRetrieved, result));
+    return reply.code(200).send(successResponse(messages.book.detailsRetrieved, result));
   }
 
   async updateBook(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
@@ -51,7 +57,7 @@ export class BookController {
     const updates = request.body as UpdateBookInput;
 
     const book = await this.bookService.updateBook(bookId, authorId, updates);
-    reply.code(200).send(successResponse(messages.book.updated, { book }));
+    return reply.code(200).send(successResponse(messages.book.updated, { book }));
   }
 
   async deleteBook(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
@@ -59,14 +65,12 @@ export class BookController {
     const authorId = request.user!.userId;
 
     await this.bookService.deleteBook(bookId, authorId);
-    reply.code(204).send();
+    return reply.code(204).send();
   }
 
   async getRecommendations(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
     const { bookId } = request.params as { bookId: string };
     const books = await this.bookService.getRecommendations(bookId);
-    reply.code(200).send(successResponse(messages.book.recommendationsRetrieved, { books }));
+    return reply.code(200).send(successResponse(messages.book.recommendationsRetrieved, { books }));
   }
 }
-
-
