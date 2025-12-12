@@ -99,8 +99,17 @@ docker compose down 2>/dev/null || true
 print_success "Existing containers stopped"
 
 
-print_info "Building Docker images (this may take a few minutes)..."
-docker compose build --no-cache
+print_info "Building Docker images..."
+
+# Check if frontend/dist exists (required for new 1GB-safe build)
+if [ ! -d "frontend/dist" ]; then
+    print_error "frontend/dist directory is missing!"
+    echo "Since you are on a 1GB VPS, you must build the frontend LOCALLY."
+    echo "Please run './deploy-local.sh' on your computer and upload the files."
+    exit 1
+fi
+
+docker compose build
 print_success "Docker images built successfully"
 
 
