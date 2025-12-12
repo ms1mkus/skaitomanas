@@ -26,7 +26,7 @@
 
 ### 1.1. Sistemos paskirtis
 
-Projekto tikslas – sukurti internetinę literatūros skaitymo ir dalinimosi platformą „Skaitomanas", leidžiančią vartotojams nemokamai skaityti, kurti ir dalintis knygomis bei jų skyriais. Sistema skirta trijų tipų naudotojams: svečiams, registruotiems vartotojams ir autoriams.
+Projekto tikslas - sukurti internetinę literatūros skaitymo ir dalinimosi platformą „Skaitomanas", leidžiančią vartotojams nemokamai skaityti, kurti ir dalintis knygomis bei jų skyriais. Sistema skirta trijų tipų naudotojams: svečiams, registruotiems vartotojams ir autoriams.
 
 **Veikimo principas** – platforma susideda iš dviejų pagrindinių dalių:
 - **Internetinės aplikacijos (Front-End)** – kurią naudoja vartotojai naršyti ir skaityti turinį
@@ -78,126 +78,23 @@ Projekto tikslas – sukurti internetinę literatūros skaitymo ir dalinimosi pl
 | **Serverio pusė (Back-End)** | Node.js su Fastify, TypeScript |
 | **Duomenų bazė** | PostgreSQL |
 | **Autentifikacija** | JWT (JSON Web Tokens) |
+| **Reverse Proxy** | Caddy (automatinis HTTPS) |
+| **Deployment** | Docker + Docker Compose |
+| **DNS** | DuckDNS (dynamic DNS) |
 
 ### UML Deployment diagrama
 
-```mermaid
-graph TB
-    subgraph "Client Layer"
-        Browser["🌐 Web Browser"]
-        Mobile["📱 Mobile Browser"]
-    end
+![UML deployment diagram](readme_screenshots/architecture.svg)
 
-    subgraph "AWS Cloud"
-        subgraph "CDN & Static Hosting"
-            CF["☁️ CloudFront CDN"]
-            S3["📦 S3 Bucket<br/>(React Build)"]
-        end
-
-        subgraph "Application Layer"
-            ALB["⚖️ Application Load Balancer"]
-            subgraph "ECS Cluster"
-                Container1["🐳 Node.js Container 1<br/>(Fastify API)"]
-                Container2["🐳 Node.js Container 2<br/>(Fastify API)"]
-            end
-        end
-
-        subgraph "Data Layer"
-            RDS["🗄️ RDS PostgreSQL<br/>(Primary)"]
-            RDS_Replica["🗄️ RDS PostgreSQL<br/>(Read Replica)"]
-            S3_Uploads["📦 S3 Bucket<br/>(User Uploads)"]
-        end
-    end
-
-    Browser --> CF
-    Mobile --> CF
-    CF --> S3
-    CF --> ALB
-    ALB --> Container1
-    ALB --> Container2
-    Container1 --> RDS
-    Container2 --> RDS
-    RDS --> RDS_Replica
-    Container1 --> S3_Uploads
-    Container2 --> S3_Uploads
-```
 
 ### Duomenų bazės schema
 
-```mermaid
-erDiagram
-    USERS {
-        uuid id PK
-        varchar email UK
-        varchar password_hash
-        varchar username UK
-        user_role role
-        timestamp created_at
-        timestamp updated_at
-    }
 
-    BOOKS {
-        uuid id PK
-        varchar title
-        text description
-        uuid author_id FK
-        text cover_image_url
-        varchar language
-        text[] tags
-        book_status status
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    CHAPTERS {
-        uuid id PK
-        uuid book_id FK
-        varchar title
-        text content
-        int chapter_number
-        boolean is_published
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    COMMENTS {
-        uuid id PK
-        uuid chapter_id FK
-        uuid user_id FK
-        text content
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    COLLECTIONS {
-        uuid id PK
-        uuid user_id FK
-        uuid book_id FK
-        timestamp created_at
-    }
-
-    READING_HISTORY {
-        uuid id PK
-        uuid user_id FK
-        uuid chapter_id FK
-        uuid book_id FK
-        timestamp last_read_at
-        int progress_percentage
-    }
-
-    USERS ||--o{ BOOKS : "writes"
-    USERS ||--o{ COMMENTS : "creates"
-    USERS ||--o{ COLLECTIONS : "has"
-    USERS ||--o{ READING_HISTORY : "has"
-    BOOKS ||--o{ CHAPTERS : "contains"
-    BOOKS ||--o{ COLLECTIONS : "in"
-    CHAPTERS ||--o{ COMMENTS : "has"
-    CHAPTERS ||--o{ READING_HISTORY : "tracked in"
-```
+![Database schema](readme_screenshots/er.png)
 
 ---
 
-## 3. Naudotojo sąsajos projektas
+## 3. Naudotojo sąsaja
 
 Šiame skyriuje pateikiami projektuojamos sąsajos langų wireframe'ai ir juos atitinkančios realizacijos langų iškarpos.
 
@@ -205,23 +102,23 @@ erDiagram
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite pagrindinio puslapio wireframe paveikslėlį]*
+![Pagrindinis puslapis wireframe](readme_screenshots/adminmain.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite pagrindinio puslapio screenshot'ą]*
+![Pagrindinis puslapis realizacija](readme_screenshots/adminmain_2.png)
 
 ---
 
-### 3.2. Knygų katalogas
+### 3.2. Knygu katalogas
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite knygų katalogo wireframe paveikslėlį]*
+![Knygu katalogas wireframe](readme_screenshots/books.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite knygų katalogo screenshot'ą]*
+![Knygu katalogas realizacija](readme_screenshots/books_2.png)
 
 ---
 
@@ -229,11 +126,11 @@ erDiagram
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite knygos informacijos wireframe paveikslėlį]*
+![Knygos informacija wireframe](readme_screenshots/adminbook.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite knygos informacijos modalinio lango screenshot'ą]*
+![Knygos informacija realizacija](readme_screenshots/adminbook_2.png)
 
 ---
 
@@ -241,11 +138,11 @@ erDiagram
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite skyriaus skaitymo wireframe paveikslėlį]*
+![Skyriaus skaitymas wireframe](readme_screenshots/section.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite skyriaus skaitymo screenshot'ą]*
+![Skyriaus skaitymas realizacija](readme_screenshots/section_2.png)
 
 ---
 
@@ -253,11 +150,11 @@ erDiagram
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite prisijungimo formos wireframe paveikslėlį]*
+![Prisijungimas wireframe](readme_screenshots/login.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite prisijungimo formos screenshot'ą]*
+![Prisijungimas realizacija](readme_screenshots/login_2.png)
 
 ---
 
@@ -265,11 +162,11 @@ erDiagram
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite registracijos formos wireframe paveikslėlį]*
+![Registracija wireframe](readme_screenshots/edit.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite registracijos formos screenshot'ą]*
+![Registracija realizacija](readme_screenshots/edit_2.png)
 
 ---
 
@@ -277,23 +174,23 @@ erDiagram
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite autoriaus valdymo skydelio wireframe paveikslėlį]*
+![Autoriaus skydelis wireframe](readme_screenshots/adminuser.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite autoriaus valdymo skydelio screenshot'ą]*
+![Autoriaus skydelis realizacija](readme_screenshots/adminuser_2.png)
 
 ---
 
-### 3.8. Skyrių redagavimas
+### 3.8. Skyriu redagavimas
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite skyrių redagavimo wireframe paveikslėlį]*
+![Skyriu redagavimas wireframe](readme_screenshots/admincomment.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite skyrių redagavimo screenshot'ą]*
+![Skyriu redagavimas realizacija](readme_screenshots/admincomment_2.png)
 
 ---
 
@@ -301,11 +198,11 @@ erDiagram
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite kolekcijos wireframe paveikslėlį]*
+![Vartotojo kolekcija wireframe](readme_screenshots/books.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite kolekcijos screenshot'ą]*
+![Vartotojo kolekcija realizacija](readme_screenshots/books_2.png)
 
 ---
 
@@ -313,11 +210,11 @@ erDiagram
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite skaitymo istorijos wireframe paveikslėlį]*
+![Skaitymo istorija wireframe](readme_screenshots/history.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite skaitymo istorijos screenshot'ą]*
+![Skaitymo istorija realizacija](readme_screenshots/history_2.png)
 
 ---
 
@@ -325,11 +222,12 @@ erDiagram
 
 **Wireframe:**
 
-*[PLACEHOLDER: Įdėkite admin skydelio wireframe paveikslėlį]*
+![Administratoriaus skydelis wireframe](readme_screenshots/adminmain.png)
 
 **Realizacija:**
 
-*[PLACEHOLDER: Įdėkite admin skydelio screenshot'ą]*
+![Administratoriaus skydelis realizacija](readme_screenshots/adminmain_2.png)
+
 
 ---
 
@@ -673,15 +571,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ## 5. Išvados
 
-Projekto „Skaitomanas" kūrimo metu buvo sėkmingai realizuota internetinė literatūros skaitymo ir dalinimosi platforma, atitinkanti visus iškeltus funkcinius reikalavimus.
+Projekto „Skaitomanas" kūrimo metu buvo sėkmingai realizuota internetinė literatūros skaitymo ir dalinimosi platforma, atitinkanti  iškeltus funkcinius reikalavimus.
 
 ### Pasiekti tikslai:
 
-1. **Pilnavertė REST API** – sukurta 36 endpoint'ų API su JWT autentifikacija, role-based prieigos kontrole ir išsamia OpenAPI dokumentacija.
+1. **REST API** – sukurta 36 endpoint'ų API su JWT autentifikacija, role-based prieigos kontrole ir išsamia OpenAPI dokumentacija.
 
-2. **Moderni naudotojo sąsaja** – React aplikacija su Mantine UI komponentų biblioteka, palaikanti tamsią temą ir responsive dizainą.
+2. **Moderni naudotojo sąsaja** – React aplikacija su Mantine UI komponentų biblioteka, turinti respons dizaina.
 
-3. **Hierarchinė duomenų struktūra** – realizuotas Books → Chapters → Comments hierarchinis modelis su tinkamais ryšiais ir CASCADE ištrynimo taisyklėmis.
+3. **Hierarchinė duomenų struktūra** – realizuotas Books -> Chapters -> Comments hierarchinis modelis su tinkamais ryšiais.
 
 4. **Rolėmis pagrįsta prieiga** – sistema palaiko keturis vartotojų tipus (svečias, vartotojas, autorius, administratorius) su skirtingomis teisėmis.
 
@@ -702,7 +600,8 @@ Projekto „Skaitomanas" kūrimo metu buvo sėkmingai realizuota internetinė li
 | Autentifikacija | JWT (access + refresh tokens) |
 | Validacija | Zod |
 | Dokumentacija | OpenAPI 3.0 / Swagger |
-| Deployment | AWS (S3, CloudFront, ECS, RDS) |
+| Deployment | Docker, Docker Compose, Caddy, DuckDNS |
+| Serveris | Linode (Linux VPS) |
 
 ### Galimi patobulinimai ateityje:
 
@@ -712,7 +611,3 @@ Projekto „Skaitomanas" kūrimo metu buvo sėkmingai realizuota internetinė li
 - Push pranešimai apie naujus skyrius
 - Knygų vertinimo sistema (žvaigždutės/reitingai)
 - Audioknygų palaikymas
-
----
-
-*© 2025 Martynas Šimkus. Kauno technologijos universitetas.*

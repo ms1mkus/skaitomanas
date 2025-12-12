@@ -1,0 +1,46 @@
+# Dockerignore for root directory
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+
+# Documentation
+*.md
+!README.md
+
+# Node modules (will be installed in container)
+node_modules
+**/node_modules
+
+# Build artifacts (will be built in container)
+dist
+**/dist
+build
+**/build
+
+# Development files
+.vscode
+.idea
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage
+**/coverage
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# Old deployment files
+deploy.sh
+DEPLOYMENT.md
+PRODUCTION_SETUP.md
