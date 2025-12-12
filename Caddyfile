@@ -2,11 +2,7 @@
 
 
 {
-    
     email admin@{$DOMAIN}
-    
-    
-    acme_dns duckdns {$DUCKDNS_TOKEN}
 }
 
 
