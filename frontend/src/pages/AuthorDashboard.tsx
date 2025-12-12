@@ -30,7 +30,7 @@ export function AuthorDashboard() {
     const [uploading, setUploading] = useState(false);
     const [coverUrl, setCoverUrl] = useState('');
 
-    const { register, handleSubmit, control, reset, setValue, watch, formState: { errors } } = useForm<BookFormData>({
+    const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm<BookFormData>({
         resolver: zodResolver(bookSchema),
         defaultValues: {
             title: '',

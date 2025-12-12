@@ -1,4 +1,4 @@
-import { Modal, Text, Button, Group, Image, Badge, Stack, Loader, Center, Divider, SimpleGrid, Card, Title } from '@mantine/core';
+import { Modal, Text, Button, Group, Image, Badge, Stack, Loader, Center, Divider, SimpleGrid, Card } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { client, API_URL } from '../../api/client';
 import { useNavigate } from 'react-router-dom';
@@ -32,20 +32,27 @@ interface RecommendedBook {
     author_username: string;
 }
 
+import { useAuth } from '../../context/AuthContext';
+
 export function BookModal({ opened, onClose, bookId }: BookModalProps) {
     const [book, setBook] = useState<BookDetails | null>(null);
     const [loading, setLoading] = useState(false);
     const [recommendations, setRecommendations] = useState<RecommendedBook[]>([]);
     const navigate = useNavigate();
-    const [user, setUser] = useState<any>(null);
+    const { user } = useAuth();
     const [isInCollection, setIsInCollection] = useState(false);
 
     useEffect(() => {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            setUser(JSON.parse(userStr));
+        if (!opened) {
+            setBook(null);
+            setIsInCollection(false);
         }
-    }, []);
+    }, [opened]);
+
+    useEffect(() => {
+        setIsInCollection(false);
+        setBook(null);
+    }, [bookId]);
 
     useEffect(() => {
         if (bookId && opened) {
@@ -61,11 +68,18 @@ export function BookModal({ opened, onClose, bookId }: BookModalProps) {
     }, [bookId, opened, user]);
 
     const checkCollectionStatus = async () => {
-        if (!user || !bookId) return;
+        if (!user || !bookId) {
+            console.log('Skipping checkCollectionStatus', { user: !!user, bookId });
+            return;
+        }
         try {
+            console.log('Checking collection status for', bookId);
             const response = await client.get(`/users/${user.id}/collections`);
-            const collection = response.data.data;
-            setIsInCollection(collection.some((b: any) => b.id === bookId));
+            // Backend returns { books: [...] } inside data
+            const books = response.data.data.books || [];
+            const isFav = books.some((b: any) => b.id == bookId);
+            console.log('Collection check result:', isFav, 'Books count:', books.length);
+            setIsInCollection(isFav);
         } catch (error) {
             console.error('Failed to check collection status', error);
         }
@@ -94,11 +108,21 @@ export function BookModal({ opened, onClose, bookId }: BookModalProps) {
         }
     };
 
+    const [toggling, setToggling] = useState(false);
+
     const handleCollectionToggle = async () => {
-        if (!user || !bookId) return;
+        if (!user || !bookId || toggling) return;
+        setToggling(true);
         try {
             if (isInCollection) {
-                await client.delete(`/users/${user.id}/collections/${bookId}`);
+                try {
+                    await client.delete(`/users/${user.id}/collections/${bookId}`);
+                } catch (error: any) {
+                    // If 404, it's already removed, so we consider it success
+                    if (error.response?.status !== 404) {
+                        throw error;
+                    }
+                }
                 setIsInCollection(false);
             } else {
                 await client.post(`/users/${user.id}/collections`, { book_id: bookId });
@@ -106,10 +130,12 @@ export function BookModal({ opened, onClose, bookId }: BookModalProps) {
             }
         } catch (error) {
             console.error('Failed to update collection', error);
+        } finally {
+            setToggling(false);
         }
     };
 
-    const handleRecommendationClick = (recBookId: string) => {
+    const handleRecommendationClick = () => {
         onClose();
         setTimeout(() => {
             navigate(`/books`);
@@ -174,6 +200,7 @@ export function BookModal({ opened, onClose, bookId }: BookModalProps) {
                                     <Button
                                         variant={isInCollection ? "filled" : "light"}
                                         color={isInCollection ? "red" : "blue"}
+                                        loading={toggling}
                                         onClick={handleCollectionToggle}
                                     >
                                         {isInCollection ? 'Pašalinti iš mėgstamiausių' : 'Pridėti į mėgstamiausius'}
@@ -195,7 +222,7 @@ export function BookModal({ opened, onClose, bookId }: BookModalProps) {
                                         radius="md"
                                         withBorder
                                         style={{ cursor: 'pointer' }}
-                                        onClick={() => handleRecommendationClick(rec.id)}
+                                        onClick={() => handleRecommendationClick()}
                                     >
                                         <Card.Section>
                                             <Image

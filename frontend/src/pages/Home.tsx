@@ -1,4 +1,4 @@
-import { Container, Title, Text, Button, Group, Stack } from '@mantine/core';
+import { Container, Title, Button, Group, Stack } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { IconBook, IconBookmark, IconPencil } from '@tabler/icons-react';

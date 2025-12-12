@@ -239,9 +239,9 @@ Pilna API specifikacija pateikta [api-spec.yaml](./api-spec.yaml) faile OpenAPI 
 
 | Nuoroda | Aprašymas |
 |---------|-----------|
-| [http://localhost:3000/api-docs.html](http://localhost:3000/api-docs.html) | Swagger UI su visa API dokumentacija |
-| [http://localhost:3000/api-spec.yaml](http://localhost:3000/api-spec.yaml) | OpenAPI specifikacijos failas (YAML) |
-| [http://localhost:3000/docs](http://localhost:3000/docs) | Auto-generuota Fastify Swagger dokumentacija |
+| api-docs.html| Swagger UI su visa API dokumentacija |
+| /api-spec.yaml | OpenAPI specifikacijos failas (YAML) |
+| /docs | Auto-generuota Fastify Swagger dokumentacija |
 
 ### API santrauka
 
@@ -610,4 +610,3 @@ Projekto „Skaitomanas" kūrimo metu buvo sėkmingai realizuota internetinė li
 - Skaitymo progreso sinchronizacija tarp įrenginių
 - Push pranešimai apie naujus skyrius
 - Knygų vertinimo sistema (žvaigždutės/reitingai)
-- Audioknygų palaikymas
