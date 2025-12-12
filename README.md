@@ -84,7 +84,7 @@ Projekto tikslas - sukurti internetinę literatūros skaitymo ir dalinimosi plat
 
 ### UML Deployment diagrama
 
-![UML deployment diagram](readme_screenshots/architecture.svg)
+![UML deployment diagram](readme_screenshots/architecture.png)
 
 
 ### Duomenų bazės schema
