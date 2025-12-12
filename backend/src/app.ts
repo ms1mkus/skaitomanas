@@ -63,6 +63,10 @@ export async function createApp() {
   await app.register(errorHandlerPlugin);
   await app.register(swaggerPlugin);
 
+  app.get('/api/health', async () => {
+    return { status: 'ok' };
+  });
+
   const path = require('path');
   await app.register(require('@fastify/static'), {
     root: path.join(__dirname, '../public'),
