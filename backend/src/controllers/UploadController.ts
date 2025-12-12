@@ -31,7 +31,7 @@ export class UploadController {
             });
         }
 
-        // Check file size
+
         const fileBuffer = await data.toBuffer();
         if (fileBuffer.length > this.maxFileSize) {
             const maxSizeMB = (this.maxFileSize / 1024 / 1024).toFixed(1);

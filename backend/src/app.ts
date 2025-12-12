@@ -54,11 +54,11 @@ export async function createApp() {
   });
 
   await app.register(cors, {
-    origin: true, // Allow all origins (for development/demo simplicity)
+    origin: true,
     credentials: true,
   });
 
-  await app.register(multipart); // Register multipart
+  await app.register(multipart);
   await app.register(authPlugin);
   await app.register(errorHandlerPlugin);
   await app.register(swaggerPlugin);

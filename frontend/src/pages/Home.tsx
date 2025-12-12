@@ -12,10 +12,6 @@ export function Home() {
             <Stack align="center" gap="xl" mt="xl">
                 <IconBook size={64} color="var(--mantine-color-blue-6)" />
                 <Title order={1} ta="center">Sveiki atvykę į Skaitomaną</Title>
-                <Text c="dimmed" ta="center" maw={500} size="lg">
-                    Jūsų asmeninė knygų skaitymo ir valdymo platforma.
-                    {user ? ' Tęskite savo kelionę!' : ' Prisijunkite ir pradėkite skaityti jau šiandien.'}
-                </Text>
 
                 {user ? (
                     <Group justify="center" mt="md">

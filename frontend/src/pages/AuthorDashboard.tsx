@@ -25,7 +25,7 @@ export function AuthorDashboard() {
     const navigate = useNavigate();
     const [opened, { open, close }] = useDisclosure(false);
 
-    // Form state
+
     const [editingBookId, setEditingBookId] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
     const [coverUrl, setCoverUrl] = useState('');
@@ -42,10 +42,10 @@ export function AuthorDashboard() {
         }
     });
 
-    // Watch cover_image_url to update local state for display if needed, 
-    // or just use watch('cover_image_url') in render.
-    // But we have custom upload logic that sets coverUrl state, so we need to sync them.
-    // Actually, let's make handleFileUpload update the form value directly.
+
+
+
+
 
     useEffect(() => {
         fetchMyBooks();
@@ -101,7 +101,7 @@ export function AuthorDashboard() {
         const bookData = {
             ...data,
             tags: data.tags ? data.tags.split(',').map(t => t.trim()).filter(t => t) : [],
-            cover_image_url: coverUrl || data.cover_image_url, // Prioritize uploaded url
+            cover_image_url: coverUrl || data.cover_image_url,
         };
 
         try {

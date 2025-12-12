@@ -5,7 +5,7 @@ export const theme = createTheme({
     primaryColor: 'indigo',
     defaultRadius: 'md',
     colors: {
-        // Custom colors can be added here if needed
+
     },
     components: {
         Button: {

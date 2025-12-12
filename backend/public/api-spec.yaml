@@ -106,7 +106,7 @@ components:
 
     BookWithAuthor:
       allOf:
-        - $ref: '#/components/schemas/Book'
+        - $ref: '
         - type: object
           properties:
             author_username:
@@ -170,7 +170,7 @@ components:
 
     CommentWithUser:
       allOf:
-        - $ref: '#/components/schemas/Comment'
+        - $ref: '
         - type: object
           properties:
             username:
@@ -242,7 +242,7 @@ components:
           type: string
 
 paths:
-  # ==================== AUTH ====================
+  
   /auth/register:
     post:
       tags: [Auth]
@@ -281,7 +281,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
+                $ref: '
               example:
                 success: true
                 message: "Registracija sėkminga"
@@ -432,7 +432,7 @@ paths:
         '401':
           description: Neautorizuota
 
-  # ==================== BOOKS ====================
+  
   /books:
     get:
       tags: [Books]
@@ -730,7 +730,7 @@ paths:
                       author_username: "petras_autorius"
                       tags: ["pasakos"]
 
-  # ==================== CHAPTERS ====================
+  
   /books/{bookId}/chapters:
     get:
       tags: [Chapters]
@@ -940,7 +940,7 @@ paths:
         '404':
           description: Skyrius nerastas
 
-  # ==================== COMMENTS ====================
+  
   /chapters/{chapterId}/comments:
     get:
       tags: [Comments]
@@ -1112,7 +1112,7 @@ paths:
         '404':
           description: Komentaras nerastas
 
-  # ==================== COLLECTIONS ====================
+  
   /users/{userId}/collections:
     get:
       tags: [Collections]
@@ -1211,7 +1211,7 @@ paths:
         '404':
           description: Įrašas nerastas
 
-  # ==================== STATS ====================
+  
   /authors/{authorId}/stats:
     get:
       tags: [Stats]
@@ -1280,7 +1280,7 @@ paths:
         '401':
           description: Neautorizuota
 
-  # ==================== ADMIN ====================
+  
   /admin/stats:
     get:
       tags: [Admin]
@@ -1474,7 +1474,7 @@ paths:
         '403':
           description: Draudžiama
 
-  # ==================== UPLOAD ====================
+  
   /upload:
     post:
       tags: [Upload]

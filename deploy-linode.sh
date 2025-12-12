@@ -1,20 +1,20 @@
-#!/bin/bash
 
-# Linode Deployment Script for Skaitomanas
-# This script automates the Docker deployment process
 
-set -e  # Exit on error
+
+
+
+set -e  
 
 echo "🚀 Starting Skaitomanas Linode Deployment..."
 
-# Colors for output
+
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m' 
 
-# Function to print colored messages
+
 print_success() {
     echo -e "${GREEN}✓${NC} $1"
 }
@@ -31,7 +31,7 @@ print_error() {
     echo -e "${RED}✗${NC} $1"
 }
 
-# Check if .env exists
+
 if [ ! -f ".env" ]; then
     print_error "Error: .env file not found"
     echo "Please create .env file from .env.example:"
@@ -42,7 +42,7 @@ fi
 
 print_success ".env file found"
 
-# Check if Docker is installed
+
 if ! command -v docker &> /dev/null; then
     print_error "Docker is not installed"
     echo "Please install Docker first:"
@@ -53,7 +53,7 @@ fi
 
 print_success "Docker is installed"
 
-# Check if Docker Compose is available
+
 if ! docker compose version &> /dev/null; then
     print_error "Docker Compose is not available"
     echo "Please install Docker Compose plugin"
@@ -62,7 +62,7 @@ fi
 
 print_success "Docker Compose is available"
 
-# Validate required environment variables
+
 print_info "Validating environment variables..."
 
 source .env
@@ -93,26 +93,26 @@ fi
 
 print_success "Environment variables validated"
 
-# Stop existing containers
+
 print_info "Stopping existing containers..."
 docker compose down 2>/dev/null || true
 print_success "Existing containers stopped"
 
-# Build images
+
 print_info "Building Docker images (this may take a few minutes)..."
 docker compose build --no-cache
 print_success "Docker images built successfully"
 
-# Start services
+
 print_info "Starting services..."
 docker compose up -d
 print_success "Services started"
 
-# Wait for database to be ready
+
 print_info "Waiting for database to be ready..."
 sleep 10
 
-# Check if database is healthy
+
 DB_HEALTH=$(docker compose ps db --format json | grep -o '"Health":"[^"]*"' | cut -d'"' -f4)
 if [ "$DB_HEALTH" != "healthy" ]; then
     print_warning "Database is not healthy yet, waiting..."
@@ -121,20 +121,20 @@ fi
 
 print_success "Database is ready"
 
-# Run migrations
+
 print_info "Running database migrations..."
 docker compose exec -T backend npm run migrate
 print_success "Database migrations completed"
 
-# Wait for all services to be healthy
+
 print_info "Waiting for all services to be healthy..."
 sleep 15
 
-# Check service status
+
 print_info "Checking service status..."
 docker compose ps
 
-# Verify all services are running
+
 SERVICES=("db" "backend" "frontend" "caddy")
 ALL_HEALTHY=true
 
@@ -171,10 +171,10 @@ if [ "$ALL_HEALTHY" = true ]; then
     
     echo ""
     echo "📊 Useful commands:"
-    echo "   docker compose logs -f        # View logs"
-    echo "   docker compose ps             # Check status"
-    echo "   docker compose restart        # Restart all services"
-    echo "   docker compose down           # Stop all services"
+    echo "   docker compose logs -f        
+    echo "   docker compose ps             
+    echo "   docker compose restart        
+    echo "   docker compose down           
     echo ""
     echo "📚 For more information, see LINODE_DEPLOYMENT.md"
 else

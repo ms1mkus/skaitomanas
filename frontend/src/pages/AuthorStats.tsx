@@ -79,7 +79,7 @@ export function AuthorStats() {
                 </Paper>
             </SimpleGrid>
 
-            {/* Future: Charts or detailed breakdown */}
+            { }
         </Container>
     );
 }
