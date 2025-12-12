@@ -40,6 +40,7 @@ export const messages = {
     updated: 'Komentaras atnaujintas',
     deleted: 'Komentaras ištrintas',
     notFound: 'Komentaras nerastas',
+    retrieved: 'Komentaras gautas',
     listRetrieved: 'Komentarų sąrašas gautas',
     notOwner: 'Jūs nesate komentaro autorius',
   },

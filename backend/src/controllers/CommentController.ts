@@ -8,6 +8,12 @@ import { CreateCommentInput, UpdateCommentInput } from '../schemas/comment.schem
 export class CommentController {
   constructor(private commentService: CommentService) { }
 
+  async getCommentById(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
+    const { commentId } = request.params as { commentId: string };
+    const comment = await this.commentService.getCommentById(commentId);
+    return reply.code(200).send(successResponse(messages.comment.retrieved, { comment }));
+  }
+
   async createComment(request: AuthenticatedRequest, reply: FastifyReply): Promise<void> {
     const { chapterId } = request.params as { chapterId: string };
     const { content } = request.body as CreateCommentInput;

@@ -9,6 +9,8 @@ import { Collection } from './pages/Collection';
 import { AuthorDashboard } from './pages/AuthorDashboard';
 import { ChapterManager } from './pages/ChapterManager';
 import { AuthorStats } from './pages/AuthorStats';
+import { ReadingHistory } from './pages/ReadingHistory';
+import { AdminDashboard } from './pages/AdminDashboard';
 
 export const router = createBrowserRouter([
     {
@@ -36,6 +38,10 @@ export const router = createBrowserRouter([
                 element: <Collection />,
             },
             {
+                path: '/history',
+                element: <ReadingHistory />,
+            },
+            {
                 path: '/author/books',
                 element: <AuthorDashboard />,
             },
@@ -51,6 +57,11 @@ export const router = createBrowserRouter([
                 path: '/books/:bookId/chapters/:chapterId',
                 element: <ChapterReader />,
             },
+            {
+                path: '/admin',
+                element: <AdminDashboard />,
+            },
         ],
     },
 ]);
+

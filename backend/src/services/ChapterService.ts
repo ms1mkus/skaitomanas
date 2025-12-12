@@ -10,7 +10,7 @@ export class ChapterService {
     private chapterRepository: ChapterRepository,
     private bookRepository: BookRepository,
     private readingHistoryRepository: ReadingHistoryRepository
-  ) {}
+  ) { }
 
   async createChapter(
     bookId: string,
@@ -48,7 +48,7 @@ export class ChapterService {
     }
 
     if (userId) {
-      await this.readingHistoryRepository.upsert(userId, chapterId, bookId, 100);
+      await this.readingHistoryRepository.upsert(userId, chapterId, bookId, chapter.word_count || 0);
     }
 
     return chapter;

@@ -5,7 +5,7 @@ import { ReadingHistoryRepository } from '../repositories/ReadingHistoryReposito
 import { UserRepository } from '../repositories/UserRepository';
 import { NotFoundError } from '../utils/errors';
 import { messages } from '../utils/messages';
-import { AuthorStats, ChapterWithBook } from '../models';
+import { AuthorStats } from '../models';
 
 export class StatsService {
   constructor(
@@ -14,7 +14,7 @@ export class StatsService {
     private commentRepository: CommentRepository,
     private readingHistoryRepository: ReadingHistoryRepository,
     private userRepository: UserRepository
-  ) {}
+  ) { }
 
   async getAuthorStats(authorId: string): Promise<AuthorStats> {
     const author = await this.userRepository.findById(authorId);
@@ -44,12 +44,12 @@ export class StatsService {
     };
   }
 
-  async getUserReadingHistory(userId: string): Promise<ChapterWithBook[]> {
+  async getUserReadingHistory(userId: string): Promise<any[]> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new NotFoundError(messages.user.notFound);
     }
 
-    return await this.readingHistoryRepository.findByUserIdWithChapters(userId);
+    return await this.readingHistoryRepository.findByUserIdWithProgress(userId);
   }
 }

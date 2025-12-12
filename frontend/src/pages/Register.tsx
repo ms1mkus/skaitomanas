@@ -6,6 +6,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useAuth } from '../context/AuthContext';
 
 const registerSchema = z.object({
     username: z.string().min(3, 'Vartotojo vardas turi būti bent 3 simbolių'),
@@ -20,6 +21,7 @@ export function Register() {
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const { login } = useAuth();
 
     const { register, handleSubmit, control, formState: { errors } } = useForm<RegisterFormData>({
         resolver: zodResolver(registerSchema),
@@ -34,8 +36,8 @@ export function Register() {
 
         try {
             const response = await client.post('/auth/register', data);
-            localStorage.setItem('token', response.data.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.data.user));
+            const { accessToken, refreshToken, user } = response.data.data;
+            login(accessToken, refreshToken, user);
             navigate('/books');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Nepavyko prisiregistruoti');

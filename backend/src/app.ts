@@ -35,6 +35,9 @@ import { commentRoutes } from './routes/comment.routes';
 import { collectionRoutes } from './routes/collection.routes';
 import { statsRoutes } from './routes/stats.routes';
 import { uploadRoutes } from './routes/upload.routes';
+import { registerAdminRoutes } from './routes/admin.routes';
+import { AdminService } from './services/AdminService';
+import { AdminController } from './controllers/AdminController';
 
 dotenv.config();
 
@@ -108,6 +111,9 @@ export async function createApp() {
   const statsController = new StatsController(statsService);
   const uploadController = new UploadController();
 
+  const adminService = new AdminService();
+  const adminController = new AdminController(adminService);
+
   await app.register(
     async (instance: FastifyInstance) => {
       await authRoutes(instance, authController);
@@ -147,6 +153,13 @@ export async function createApp() {
   await app.register(
     async (instance: FastifyInstance) => {
       await uploadRoutes(instance, uploadController);
+    },
+    { prefix: '' }
+  );
+
+  await app.register(
+    async (instance: FastifyInstance) => {
+      registerAdminRoutes(instance, adminController);
     },
     { prefix: '' }
   );

@@ -1,27 +1,106 @@
 .header {
-  height: 60px;
-  border-bottom: 1px solid var(--mantine-color-dark-4);
-  background-color: var(--mantine-color-body);
+    height: 60px;
+    border-bottom: 1px solid var(--mantine-color-dark-4);
+    background-color: var(--mantine-color-body);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
 }
 
 .inner {
-  height: 60px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.logo:hover {
+    opacity: 0.8;
+}
+
+.logoIcon {
+    color: var(--mantine-color-blue-6);
+}
+
+.logoText {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.desktopNav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .link {
-  display: block;
-  line-height: 1;
-  padding: 8px 12px;
-  border-radius: var(--mantine-radius-sm);
-  text-decoration: none;
-  color: var(--mantine-color-text);
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 500;
+    display: block;
+    line-height: 1;
+    padding: 10px 14px;
+    border-radius: var(--mantine-radius-md);
+    text-decoration: none;
+    color: var(--mantine-color-text);
+    font-size: var(--mantine-font-size-sm);
+    font-weight: 500;
+    transition: all 0.2s;
+}
 
-  &:hover {
+.link:hover {
     background-color: var(--mantine-color-dark-6);
-  }
+}
+
+.mobileNav {
+    display: none;
+}
+
+.mobileLink {
+    display: block;
+    padding: 14px 16px;
+    border-radius: var(--mantine-radius-md);
+    text-decoration: none;
+    color: var(--mantine-color-text);
+    font-size: var(--mantine-font-size-md);
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.mobileLink:hover {
+    background-color: var(--mantine-color-dark-6);
+}
+
+.userButton {
+    margin-left: 8px;
+}
+
+@media (max-width: 900px) {
+    .desktopNav {
+        display: none !important;
+    }
+
+    .mobileNav {
+        display: flex !important;
+        align-items: center;
+    }
+
+    .logoText {
+        display: none;
+    }
+}
+
+@media (min-width: 901px) {
+    .mobileNav {
+        display: none !important;
+    }
 }

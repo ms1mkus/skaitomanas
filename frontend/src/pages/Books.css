@@ -1,0 +1,21 @@
+.book-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.book-cover-section {
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: var(--mantine-color-dark-6);
+}
+
+.book-cover-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

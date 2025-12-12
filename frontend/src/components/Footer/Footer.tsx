@@ -10,9 +10,6 @@ export function Footer() {
                     <IconBook size={28} />
                     <Text fw={700}>Skaitomanas</Text>
                 </Group>
-                <Text c="dimmed" size="sm">
-                    © 2025 Skaitomanas. Visos teisės saugomos.
-                </Text>
             </Container>
         </div>
     );

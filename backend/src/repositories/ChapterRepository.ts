@@ -1,6 +1,12 @@
 import { query } from '../db/pool';
 import { Chapter } from '../models';
 
+function calculateWordCount(content: string): number {
+  if (!content) return 0;
+  const plainText = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  return plainText.split(/\s+/).filter(word => word.length > 0).length;
+}
+
 export class ChapterRepository {
   async create(
     bookId: string,
@@ -9,11 +15,12 @@ export class ChapterRepository {
     chapterNumber: number,
     isPublished: boolean
   ): Promise<Chapter> {
+    const wordCount = calculateWordCount(content);
     const result = await query<Chapter>(
-      `INSERT INTO chapters (book_id, title, content, chapter_number, is_published) 
-       VALUES ($1, $2, $3, $4, $5) 
-       RETURNING *`,
-      [bookId, title, content, chapterNumber, isPublished]
+      `INSERT INTO chapters (book_id, title, content, chapter_number, is_published, word_count) 
+             VALUES ($1, $2, $3, $4, $5, $6) 
+             RETURNING *`,
+      [bookId, title, content, chapterNumber, isPublished, wordCount]
     );
     return result[0];
   }
@@ -54,6 +61,13 @@ export class ChapterRepository {
     const params: unknown[] = [];
     let paramIndex = 1;
 
+    if (updates.content !== undefined) {
+      const wordCount = calculateWordCount(updates.content);
+      fields.push(`word_count = $${paramIndex}`);
+      params.push(wordCount);
+      paramIndex++;
+    }
+
     Object.entries(updates).forEach(([key, value]) => {
       if (value !== undefined) {
         fields.push(`${key} = $${paramIndex}`);
@@ -84,5 +98,13 @@ export class ChapterRepository {
       [bookId]
     );
     return parseInt(result[0].count, 10);
+  }
+
+  async getTotalWordCountByBookId(bookId: string): Promise<number> {
+    const result = await query<{ total: string }>(
+      'SELECT COALESCE(SUM(word_count), 0) as total FROM chapters WHERE book_id = $1',
+      [bookId]
+    );
+    return parseInt(result[0].total, 10);
   }
 }

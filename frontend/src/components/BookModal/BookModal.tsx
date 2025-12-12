@@ -1,4 +1,4 @@
-import { Modal, Text, Button, Group, Image, Badge, Stack, Loader, Center } from '@mantine/core';
+import { Modal, Text, Button, Group, Image, Badge, Stack, Loader, Center, Divider, SimpleGrid, Card, Title } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { client, API_URL } from '../../api/client';
 import { useNavigate } from 'react-router-dom';
@@ -25,9 +25,17 @@ interface BookDetails {
     chapters?: Chapter[];
 }
 
+interface RecommendedBook {
+    id: string;
+    title: string;
+    cover_image_url?: string;
+    author_username: string;
+}
+
 export function BookModal({ opened, onClose, bookId }: BookModalProps) {
     const [book, setBook] = useState<BookDetails | null>(null);
     const [loading, setLoading] = useState(false);
+    const [recommendations, setRecommendations] = useState<RecommendedBook[]>([]);
     const navigate = useNavigate();
     const [user, setUser] = useState<any>(null);
     const [isInCollection, setIsInCollection] = useState(false);
@@ -42,6 +50,7 @@ export function BookModal({ opened, onClose, bookId }: BookModalProps) {
     useEffect(() => {
         if (bookId && opened) {
             fetchBookDetails();
+            fetchRecommendations();
         }
     }, [bookId, opened]);
 
@@ -75,6 +84,16 @@ export function BookModal({ opened, onClose, bookId }: BookModalProps) {
         }
     };
 
+    const fetchRecommendations = async () => {
+        if (!bookId) return;
+        try {
+            const response = await client.get(`/books/${bookId}/recommendations`);
+            setRecommendations(response.data.data.recommendations || []);
+        } catch (error) {
+            console.error('Failed to fetch recommendations', error);
+        }
+    };
+
     const handleCollectionToggle = async () => {
         if (!user || !bookId) return;
         try {
@@ -90,71 +109,110 @@ export function BookModal({ opened, onClose, bookId }: BookModalProps) {
         }
     };
 
+    const handleRecommendationClick = (recBookId: string) => {
+        onClose();
+        setTimeout(() => {
+            navigate(`/books`);
+        }, 100);
+    };
+
     if (!bookId) return null;
 
     return (
-        <Modal opened={opened} onClose={onClose} title={book ? `Knyga: ${book.title}` : 'Kraunama...'} size="lg" centered>
+        <Modal opened={opened} onClose={onClose} title={book?.title || 'Kraunama...'} size="xl" centered>
             {loading || !book ? (
                 <Center h={200}>
                     <Loader />
                 </Center>
             ) : (
-                <Group align="flex-start">
-                    <Image
-                        src={book.cover_image_url ? (book.cover_image_url.startsWith('/') ? `${API_URL}${book.cover_image_url}` : book.cover_image_url) : `https://placehold.co/200x300?text=${encodeURIComponent(book.title)}`}
-                        width={200}
-                        radius="md"
-                    />
-                    <Stack style={{ flex: 1 }}>
-                        <Group justify="space-between">
-                            <Text fw={700} size="xl">{book.title}</Text>
-                            <Badge color={book.status === 'published' ? 'green' : 'yellow'}>
-                                {book.status === 'published' ? 'Išleista' : 'Juodraštis'}
-                            </Badge>
-                        </Group>
-                        <Text c="dimmed">Autorius: {book.author_username}</Text>
-                        <Text size="sm">
-                            {book.description || 'Nėra aprašymo'}
-                        </Text>
+                <Stack>
+                    <Group align="flex-start">
+                        <Image
+                            src={book.cover_image_url ? (book.cover_image_url.startsWith('/') ? `${API_URL}${book.cover_image_url}` : book.cover_image_url) : `https://placehold.co/140x200?text=${encodeURIComponent(book.title)}`}
+                            w={140}
+                            h={200}
+                            radius="md"
+                            fit="cover"
+                        />
+                        <Stack style={{ flex: 1 }}>
+                            <Group justify="space-between">
+                                <Text fw={700} size="xl">{book.title}</Text>
+                                <Badge color={book.status === 'published' ? 'green' : 'yellow'}>
+                                    {book.status === 'published' ? 'Išleista' : 'Juodraštis'}
+                                </Badge>
+                            </Group>
+                            <Text c="dimmed">Autorius: {book.author_username}</Text>
+                            <Text size="sm">
+                                {book.description || 'Nėra aprašymo'}
+                            </Text>
 
-                        <Text fw={600} mt="md">Skyriai:</Text>
-                        {book.chapters && book.chapters.length > 0 ? (
-                            <Stack gap="xs">
-                                {book.chapters.sort((a, b) => a.order_index - b.order_index).map((chapter) => (
-                                    <Button
-                                        key={chapter.id}
-                                        variant="subtle"
-                                        justify="space-between"
-                                        fullWidth
-                                        onClick={() => {
-                                            onClose();
-                                            navigate(`/books/${bookId}/chapters/${chapter.id}`);
-                                        }}
-                                    >
-                                        {chapter.title}
-                                    </Button>
-                                ))}
-                            </Stack>
-                        ) : (
-                            <Text c="dimmed" size="sm">Skyrių nėra.</Text>
-                        )}
-
-                        <Group mt="md">
-                            <Button onClick={onClose} variant="default">Uždaryti</Button>
-                            {user && user.role === 'user' && (
-                                <Button
-                                    variant={isInCollection ? "filled" : "light"}
-                                    color={isInCollection ? "red" : "blue"}
-                                    onClick={handleCollectionToggle}
-                                >
-                                    {isInCollection ? 'Pašalinti iš mėgstamiausių' : 'Pridėti į mėgstamiausius'}
-                                </Button>
+                            <Text fw={600} mt="md">Skyriai:</Text>
+                            {book.chapters && book.chapters.length > 0 ? (
+                                <Stack gap="xs">
+                                    {book.chapters.sort((a, b) => a.order_index - b.order_index).map((chapter) => (
+                                        <Button
+                                            key={chapter.id}
+                                            variant="subtle"
+                                            justify="space-between"
+                                            fullWidth
+                                            onClick={() => {
+                                                onClose();
+                                                navigate(`/books/${bookId}/chapters/${chapter.id}`);
+                                            }}
+                                        >
+                                            {chapter.title}
+                                        </Button>
+                                    ))}
+                                </Stack>
+                            ) : (
+                                <Text c="dimmed" size="sm">Skyrių nėra.</Text>
                             )}
-                        </Group>
-                    </Stack>
-                </Group>
+
+                            <Group mt="md">
+                                <Button onClick={onClose} variant="default">Uždaryti</Button>
+                                {user && user.role === 'user' && (
+                                    <Button
+                                        variant={isInCollection ? "filled" : "light"}
+                                        color={isInCollection ? "red" : "blue"}
+                                        onClick={handleCollectionToggle}
+                                    >
+                                        {isInCollection ? 'Pašalinti iš mėgstamiausių' : 'Pridėti į mėgstamiausius'}
+                                    </Button>
+                                )}
+                            </Group>
+                        </Stack>
+                    </Group>
+
+                    {recommendations.length > 0 && (
+                        <>
+                            <Divider my="md" label="Panašios knygos" labelPosition="center" />
+                            <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="sm">
+                                {recommendations.slice(0, 4).map((rec) => (
+                                    <Card
+                                        key={rec.id}
+                                        shadow="xs"
+                                        padding="xs"
+                                        radius="md"
+                                        withBorder
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => handleRecommendationClick(rec.id)}
+                                    >
+                                        <Card.Section>
+                                            <Image
+                                                src={rec.cover_image_url ? (rec.cover_image_url.startsWith('/') ? `${API_URL}${rec.cover_image_url}` : rec.cover_image_url) : `https://placehold.co/150x200?text=${encodeURIComponent(rec.title)}`}
+                                                height={100}
+                                                alt={rec.title}
+                                            />
+                                        </Card.Section>
+                                        <Text size="xs" fw={500} mt="xs" lineClamp={2}>{rec.title}</Text>
+                                        <Text size="xs" c="dimmed" lineClamp={1}>{rec.author_username}</Text>
+                                    </Card>
+                                ))}
+                            </SimpleGrid>
+                        </>
+                    )}
+                </Stack>
             )}
         </Modal>
     );
 }
-

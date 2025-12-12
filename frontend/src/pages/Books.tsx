@@ -1,9 +1,10 @@
-import { Container, Title, SimpleGrid, Card, Image, Text, Badge, Button, Group, Loader, Center, Alert } from '@mantine/core';
+import { Container, Title, SimpleGrid, Card, Image, Text, Badge, Button, Group, Loader, Center, Alert, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useState, useEffect } from 'react';
 import { BookModal } from '../components/BookModal/BookModal';
 import { client, API_URL } from '../api/client';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconSearch } from '@tabler/icons-react';
+import './Books.css';
 
 interface Book {
     id: string;
@@ -11,6 +12,7 @@ interface Book {
     description: string;
     cover_image_url?: string;
     status: 'draft' | 'published';
+    author_username?: string;
 }
 
 export function Books() {
@@ -19,6 +21,7 @@ export function Books() {
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [search, setSearch] = useState('');
 
     useEffect(() => {
         fetchBooks();
@@ -41,6 +44,11 @@ export function Books() {
         open();
     };
 
+    const filteredBooks = books.filter(book =>
+        book.title.toLowerCase().includes(search.toLowerCase()) ||
+        book.description?.toLowerCase().includes(search.toLowerCase())
+    );
+
     if (loading) {
         return (
             <Center h={400}>
@@ -61,44 +69,57 @@ export function Books() {
 
     return (
         <Container size="lg" py="xl">
-            <Title order={2} mb="xl">Knygų katalogas</Title>
-            <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-                {books.map((book) => (
-                    <Card
-                        key={book.id}
-                        shadow="sm"
-                        padding="lg"
-                        radius="md"
-                        withBorder
-                        style={{ transition: 'transform 0.2s ease', cursor: 'pointer' }}
-                        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                    >
-                        <Card.Section>
-                            <Image
-                                src={book.cover_image_url ? (book.cover_image_url.startsWith('/') ? `${API_URL}${book.cover_image_url}` : book.cover_image_url) : `https://placehold.co/600x400?text=${encodeURIComponent(book.title)}`}
-                                height={160}
-                                alt={book.title}
-                            />
-                        </Card.Section>
+            <Group justify="space-between" mb="xl">
+                <Title order={2}>Knygų katalogas</Title>
+                <TextInput
+                    placeholder="Ieškoti knygų..."
+                    leftSection={<IconSearch size={16} />}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    w={{ base: '100%', sm: 300 }}
+                />
+            </Group>
 
-                        <Group justify="space-between" mt="md" mb="xs">
-                            <Text fw={500} truncate>{book.title}</Text>
-                            <Badge color={book.status === 'published' ? 'green' : 'yellow'}>
-                                {book.status === 'published' ? 'Išleista' : 'Juodraštis'}
-                            </Badge>
-                        </Group>
+            {filteredBooks.length === 0 ? (
+                <Text c="dimmed" ta="center" mt="xl">Knygų nerasta</Text>
+            ) : (
+                <SimpleGrid cols={{ base: 2, sm: 3, lg: 4 }} spacing="lg">
+                    {filteredBooks.map((book) => (
+                        <Card
+                            key={book.id}
+                            shadow="sm"
+                            padding="md"
+                            radius="md"
+                            withBorder
+                            className="book-card"
+                            onClick={() => handleBookClick(book.id)}
+                        >
+                            <Card.Section className="book-cover-section">
+                                <Image
+                                    src={book.cover_image_url ? (book.cover_image_url.startsWith('/') ? `${API_URL}${book.cover_image_url}` : book.cover_image_url) : undefined}
+                                    fallbackSrc={`https://placehold.co/300x400/1a1b1e/666?text=${encodeURIComponent(book.title.substring(0, 15))}`}
+                                    alt={book.title}
+                                    className="book-cover-image"
+                                />
+                            </Card.Section>
 
-                        <Text size="sm" c="dimmed" lineClamp={3}>
-                            {book.description || 'Nėra aprašymo'}
-                        </Text>
+                            <Text fw={600} mt="sm" lineClamp={2} size="sm">
+                                {book.title}
+                            </Text>
 
-                        <Button color="blue" fullWidth mt="md" radius="md" onClick={() => handleBookClick(book.id)}>
-                            Skaityti
-                        </Button>
-                    </Card>
-                ))}
-            </SimpleGrid>
+                            {book.author_username && (
+                                <Text size="xs" c="dimmed" mt={4}>
+                                    {book.author_username}
+                                </Text>
+                            )}
+
+                            <Text size="xs" c="dimmed" lineClamp={2} mt={4}>
+                                {book.description || 'Nėra aprašymo'}
+                            </Text>
+                        </Card>
+                    ))}
+                </SimpleGrid>
+            )}
             <BookModal opened={opened} onClose={close} bookId={selectedBook} />
         </Container>
     );

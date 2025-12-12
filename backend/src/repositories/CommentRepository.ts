@@ -17,6 +17,17 @@ export class CommentRepository {
     return result[0] || null;
   }
 
+  async findByIdWithUser(id: string): Promise<CommentWithUser | null> {
+    const result = await query<CommentWithUser>(
+      `SELECT c.*, u.username 
+       FROM comments c 
+       JOIN users u ON c.user_id = u.id 
+       WHERE c.id = $1`,
+      [id]
+    );
+    return result[0] || null;
+  }
+
   async findByChapterId(chapterId: string): Promise<CommentWithUser[]> {
     return await query<CommentWithUser>(
       `SELECT c.*, u.username 

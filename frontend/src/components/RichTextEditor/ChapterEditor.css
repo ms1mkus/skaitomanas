@@ -1,0 +1,197 @@
+.chapter-editor-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 220px);
+    min-height: 500px;
+}
+
+.chapter-editor {
+    border: 1px solid var(--mantine-color-dark-4) !important;
+    border-radius: var(--mantine-radius-md) !important;
+    background: var(--mantine-color-dark-7) !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chapter-editor .mantine-RichTextEditor-toolbar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    padding: 12px !important;
+    background: var(--mantine-color-dark-6) !important;
+    border-bottom: 1px solid var(--mantine-color-dark-4) !important;
+    border-radius: var(--mantine-radius-md) var(--mantine-radius-md) 0 0 !important;
+}
+
+.chapter-editor .mantine-RichTextEditor-controlsGroup {
+    display: flex !important;
+    gap: 2px !important;
+    background: var(--mantine-color-dark-7) !important;
+    border-radius: var(--mantine-radius-sm) !important;
+    padding: 4px !important;
+}
+
+.chapter-editor .mantine-RichTextEditor-control {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: var(--mantine-radius-sm) !important;
+    background: transparent !important;
+    color: var(--mantine-color-gray-4) !important;
+    border: none !important;
+}
+
+.chapter-editor .mantine-RichTextEditor-control:hover {
+    background: var(--mantine-color-dark-5) !important;
+    color: var(--mantine-color-gray-1) !important;
+}
+
+.chapter-editor .mantine-RichTextEditor-control[data-active="true"] {
+    background: var(--mantine-color-blue-7) !important;
+    color: white !important;
+}
+
+.chapter-content-wrapper {
+    background: var(--mantine-color-dark-8) !important;
+    flex: 1;
+    border-radius: 0 0 var(--mantine-radius-md) var(--mantine-radius-md) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+.chapter-content {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    font-size: 1.125rem !important;
+    line-height: 1.9 !important;
+    color: var(--mantine-color-gray-2) !important;
+    max-width: 700px;
+    margin: 0 auto;
+    min-height: 300px;
+}
+
+.chapter-content .tiptap {
+    min-height: 300px;
+    outline: none;
+    padding: 0;
+}
+
+.chapter-content .tiptap:focus {
+    outline: none;
+}
+
+.chapter-content .tiptap p {
+    margin-bottom: 1.25em;
+}
+
+.chapter-content .tiptap h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: var(--mantine-color-gray-1);
+}
+
+.chapter-content .tiptap h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--mantine-color-gray-2);
+}
+
+.chapter-content .tiptap h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--mantine-color-gray-3);
+}
+
+.chapter-content .tiptap blockquote {
+    border-left: 3px solid var(--mantine-color-blue-6);
+    margin: 1.5rem 0;
+    padding: 0.75rem 1.5rem;
+    font-style: italic;
+    color: var(--mantine-color-gray-4);
+    background: var(--mantine-color-dark-7);
+    border-radius: 0 var(--mantine-radius-sm) var(--mantine-radius-sm) 0;
+}
+
+.chapter-content .tiptap hr {
+    border: none;
+    border-top: 1px solid var(--mantine-color-dark-5);
+    margin: 2rem auto;
+    width: 50%;
+}
+
+.chapter-content .tiptap ul,
+.chapter-content .tiptap ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.chapter-content .tiptap li {
+    margin-bottom: 0.5rem;
+}
+
+.chapter-content .tiptap strong {
+    font-weight: 700;
+    color: var(--mantine-color-gray-1);
+}
+
+.chapter-content .tiptap em {
+    font-style: italic;
+}
+
+.chapter-content .tiptap u {
+    text-decoration: underline;
+}
+
+.chapter-content .tiptap s {
+    text-decoration: line-through;
+}
+
+.chapter-content .tiptap a {
+    color: var(--mantine-color-blue-5);
+    text-decoration: underline;
+}
+
+.chapter-content .tiptap mark {
+    background-color: var(--mantine-color-yellow-6);
+    color: var(--mantine-color-dark-9);
+    padding: 0 0.25rem;
+    border-radius: 2px;
+}
+
+.chapter-content .tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: var(--mantine-color-gray-6);
+    pointer-events: none;
+    height: 0;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .chapter-editor-wrapper {
+        height: calc(100vh - 280px);
+    }
+
+    .chapter-content {
+        font-size: 1rem !important;
+    }
+
+    .chapter-editor .mantine-RichTextEditor-toolbar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+
+    .chapter-editor .mantine-RichTextEditor-control {
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+    }
+}

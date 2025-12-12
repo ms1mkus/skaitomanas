@@ -106,7 +106,7 @@ export function AuthorDashboard() {
 
         try {
             if (editingBookId) {
-                await client.patch(`/ books / ${editingBookId} `, bookData);
+                await client.patch(`/books/${editingBookId}`, bookData);
             } else {
                 await client.post('/books', bookData);
             }
@@ -122,7 +122,7 @@ export function AuthorDashboard() {
     const handleDelete = async (id: string) => {
         if (!window.confirm('Ar tikrai norite ištrinti šią knygą?')) return;
         try {
-            await client.delete(`/ books / ${id} `);
+            await client.delete(`/books/${id}`);
             fetchMyBooks();
         } catch (err) {
             console.error('Failed to delete book', err);

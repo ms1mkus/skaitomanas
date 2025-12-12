@@ -1,0 +1,1508 @@
+openapi: 3.0.3
+info:
+  title: Skaitomanas API
+  description: |
+    Skaitomanas - internetinė literatūros skaitymo ir dalinimosi platforma.
+    API leidžia vartotojams skaityti, kurti ir dalintis knygomis bei jų skyriais.
+  version: 1.0.0
+  contact:
+    name: Martynas Šimkus
+    email: martynas@example.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  - url: https://api.skaitomanas.lt/api
+    description: Production server
+
+tags:
+  - name: Auth
+    description: Autentifikacijos operacijos
+  - name: Books
+    description: Knygų valdymas
+  - name: Chapters
+    description: Skyrių valdymas
+  - name: Comments
+    description: Komentarų valdymas
+  - name: Collections
+    description: Vartotojo kolekcijos
+  - name: Stats
+    description: Statistikos ir istorijos duomenys
+  - name: Admin
+    description: Administravimo funkcijos
+  - name: Upload
+    description: Failų įkėlimas
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          example: "vartotojas@example.com"
+        username:
+          type: string
+          example: "skaitytojas123"
+        role:
+          type: string
+          enum: [guest, user, author, admin]
+          example: "user"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: "Lietuvos pasakos"
+        description:
+          type: string
+          example: "Rinkinys tradicinių lietuvių liaudies pasakų"
+        author_id:
+          type: string
+          format: uuid
+        cover_image_url:
+          type: string
+          format: uri
+          example: "https://example.com/cover.jpg"
+        language:
+          type: string
+          example: "lt"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["pasakos", "liaudies", "vaikams"]
+        status:
+          type: string
+          enum: [draft, published]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    BookWithAuthor:
+      allOf:
+        - $ref: '#/components/schemas/Book'
+        - type: object
+          properties:
+            author_username:
+              type: string
+              example: "jonas_rašytojas"
+            author_email:
+              type: string
+              format: email
+
+    Chapter:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        book_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: "Pirmas skyrius: Pradžia"
+        content:
+          type: string
+          example: "Seniai seniai gyveno..."
+        chapter_number:
+          type: integer
+          example: 1
+        word_count:
+          type: integer
+          example: 1500
+        is_published:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        chapter_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        content:
+          type: string
+          example: "Labai įdomi knyga!"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CommentWithUser:
+      allOf:
+        - $ref: '#/components/schemas/Comment'
+        - type: object
+          properties:
+            username:
+              type: string
+              example: "skaitytojas123"
+
+    Collection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        book_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+
+    AuthorStats:
+      type: object
+      properties:
+        total_books:
+          type: integer
+          example: 5
+        total_chapters:
+          type: integer
+          example: 25
+        total_readers:
+          type: integer
+          example: 150
+        total_comments:
+          type: integer
+          example: 42
+        most_read_book:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            title:
+              type: string
+            read_count:
+              type: integer
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Klaida apdorojant užklausą"
+        error:
+          type: string
+
+paths:
+  # ==================== AUTH ====================
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Registruoti naują vartotoją
+      description: Sukuria naują vartotojo paskyrą sistemoje
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, username]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 100
+                role:
+                  type: string
+                  enum: [user, author]
+            example:
+              email: "naujas@example.com"
+              password: "saugusSlaptazodis123"
+              username: "naujas_vartotojas"
+              role: "user"
+      responses:
+        '201':
+          description: Vartotojas sėkmingai sukurtas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: true
+                message: "Registracija sėkminga"
+                data:
+                  user:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    email: "naujas@example.com"
+                    username: "naujas_vartotojas"
+                    role: "user"
+                  accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '400':
+          description: Neteisingi duomenys
+          content:
+            application/json:
+              example:
+                success: false
+                message: "El. paštas jau užregistruotas"
+        '500':
+          description: Serverio klaida
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Prisijungti prie sistemos
+      description: Autentifikuoja vartotoją ir grąžina JWT tokenus
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+            example:
+              email: "vartotojas@example.com"
+              password: "slaptazodis123"
+      responses:
+        '200':
+          description: Prisijungimas sėkmingas
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Prisijungimas sėkmingas"
+                data:
+                  user:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    email: "vartotojas@example.com"
+                    username: "skaitytojas123"
+                    role: "user"
+                  accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '401':
+          description: Neteisingi prisijungimo duomenys
+          content:
+            application/json:
+              example:
+                success: false
+                message: "Neteisingas el. paštas arba slaptažodis"
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Atnaujinti prieigos tokeną
+      description: Gauna naują access token naudojant refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+            example:
+              refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: Token atnaujintas
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Token atnaujintas"
+                data:
+                  accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '401':
+          description: Negaliojantis refresh token
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Atsijungti iš sistemos
+      description: Panaikina refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+            example:
+              refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: Atsijungta sėkmingai
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Atsijungta sėkmingai"
+                data: null
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Gauti dabartinio vartotojo informaciją
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Vartotojo informacija
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Vartotojo informacija"
+                data:
+                  id: "550e8400-e29b-41d4-a716-446655440000"
+                  email: "vartotojas@example.com"
+                  username: "skaitytojas123"
+                  role: "user"
+                  created_at: "2025-01-15T10:30:00Z"
+        '401':
+          description: Neautorizuota
+
+  # ==================== BOOKS ====================
+  /books:
+    get:
+      tags: [Books]
+      summary: Gauti knygų sąrašą
+      description: Grąžina publikuotų knygų sąrašą su filtrais
+      security: []
+      parameters:
+        - name: tag
+          in: query
+          schema:
+            type: string
+          example: "fantastika"
+        - name: author
+          in: query
+          schema:
+            type: string
+          example: "jonas"
+        - name: language
+          in: query
+          schema:
+            type: string
+          example: "lt"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Knygų sąrašas
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Knygos rastos"
+                data:
+                  books:
+                    - id: "550e8400-e29b-41d4-a716-446655440000"
+                      title: "Lietuvos pasakos"
+                      description: "Rinkinys tradicinių lietuvių liaudies pasakų"
+                      author_id: "660e8400-e29b-41d4-a716-446655440001"
+                      author_username: "jonas_rašytojas"
+                      cover_image_url: "https://example.com/cover.jpg"
+                      language: "lt"
+                      tags: ["pasakos", "liaudies"]
+                      status: "published"
+                      created_at: "2025-01-10T14:00:00Z"
+                  total: 42
+                  limit: 20
+                  offset: 0
+
+    post:
+      tags: [Books]
+      summary: Sukurti naują knygą
+      description: Tik autoriams ir administratoriams
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description]
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 500
+                description:
+                  type: string
+                cover_image_url:
+                  type: string
+                  format: uri
+                language:
+                  type: string
+                  default: "lt"
+                tags:
+                  type: array
+                  items:
+                    type: string
+                status:
+                  type: string
+                  enum: [draft, published]
+            example:
+              title: "Mano nauja knyga"
+              description: "Įdomi istorija apie nuotykius"
+              language: "lt"
+              tags: ["nuotykiai", "fantastika"]
+              status: "draft"
+      responses:
+        '201':
+          description: Knyga sukurta
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Knyga sukurta"
+                data:
+                  id: "770e8400-e29b-41d4-a716-446655440002"
+                  title: "Mano nauja knyga"
+                  description: "Įdomi istorija apie nuotykius"
+                  author_id: "550e8400-e29b-41d4-a716-446655440000"
+                  language: "lt"
+                  tags: ["nuotykiai", "fantastika"]
+                  status: "draft"
+                  created_at: "2025-01-20T09:00:00Z"
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama (ne autorius)
+
+  /books/my-books:
+    get:
+      tags: [Books]
+      summary: Gauti autoriaus knygas
+      description: Grąžina prisijungusio autoriaus knygas, įskaitant juodraščius
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Autoriaus knygų sąrašas
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Autoriaus knygos"
+                data:
+                  books:
+                    - id: "550e8400-e29b-41d4-a716-446655440000"
+                      title: "Mano knyga"
+                      status: "published"
+                    - id: "660e8400-e29b-41d4-a716-446655440001"
+                      title: "Nauja knyga (juodraštis)"
+                      status: "draft"
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+
+  /books/{bookId}:
+    get:
+      tags: [Books]
+      summary: Gauti knygos detales
+      description: Grąžina knygos informaciją su skyrių sąrašu
+      security: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Knygos detalės
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Knyga rasta"
+                data:
+                  id: "550e8400-e29b-41d4-a716-446655440000"
+                  title: "Lietuvos pasakos"
+                  description: "Rinkinys tradicinių lietuvių liaudies pasakų"
+                  author_id: "660e8400-e29b-41d4-a716-446655440001"
+                  author_username: "jonas_rašytojas"
+                  cover_image_url: "https://example.com/cover.jpg"
+                  language: "lt"
+                  tags: ["pasakos", "liaudies"]
+                  status: "published"
+                  chapters:
+                    - id: "770e8400-e29b-41d4-a716-446655440002"
+                      title: "Eglė žalčių karalienė"
+                      chapter_number: 1
+                      is_published: true
+                    - id: "880e8400-e29b-41d4-a716-446655440003"
+                      title: "Jūratė ir Kastytis"
+                      chapter_number: 2
+                      is_published: true
+        '404':
+          description: Knyga nerasta
+
+    patch:
+      tags: [Books]
+      summary: Atnaujinti knygą
+      description: Tik knygos autorius gali redaguoti
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                cover_image_url:
+                  type: string
+                  format: uri
+                language:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                status:
+                  type: string
+                  enum: [draft, published]
+            example:
+              title: "Atnaujintas pavadinimas"
+              status: "published"
+      responses:
+        '200':
+          description: Knyga atnaujinta
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Knyga atnaujinta"
+                data:
+                  id: "550e8400-e29b-41d4-a716-446655440000"
+                  title: "Atnaujintas pavadinimas"
+                  status: "published"
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama (ne autorius)
+        '404':
+          description: Knyga nerasta
+
+    delete:
+      tags: [Books]
+      summary: Ištrinti knygą
+      description: Tik knygos autorius gali ištrinti
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Knyga ištrinta
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+        '404':
+          description: Knyga nerasta
+
+  /books/{bookId}/recommendations:
+    get:
+      tags: [Books]
+      summary: Gauti knygų rekomendacijas
+      description: Grąžina panašias knygas pagal žanrą ir žymas
+      security: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Rekomenduojamos knygos
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Rekomendacijos"
+                data:
+                  recommendations:
+                    - id: "990e8400-e29b-41d4-a716-446655440004"
+                      title: "Kitos pasakos"
+                      author_username: "petras_autorius"
+                      tags: ["pasakos"]
+
+  # ==================== CHAPTERS ====================
+  /books/{bookId}/chapters:
+    get:
+      tags: [Chapters]
+      summary: Gauti knygos skyrių sąrašą
+      security: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Skyrių sąrašas
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Skyriai rasti"
+                data:
+                  chapters:
+                    - id: "770e8400-e29b-41d4-a716-446655440002"
+                      title: "Pirmas skyrius"
+                      chapter_number: 1
+                      word_count: 1500
+                      is_published: true
+                    - id: "880e8400-e29b-41d4-a716-446655440003"
+                      title: "Antras skyrius"
+                      chapter_number: 2
+                      word_count: 2000
+                      is_published: true
+        '404':
+          description: Knyga nerasta
+
+    post:
+      tags: [Chapters]
+      summary: Sukurti naują skyrių
+      description: Tik knygos autorius gali pridėti skyrius
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, content, chapter_number]
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 500
+                content:
+                  type: string
+                  minLength: 1
+                chapter_number:
+                  type: integer
+                  minimum: 1
+                is_published:
+                  type: boolean
+            example:
+              title: "Naujas skyrius"
+              content: "Skyriaus turinys čia..."
+              chapter_number: 3
+              is_published: false
+      responses:
+        '201':
+          description: Skyrius sukurtas
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Skyrius sukurtas"
+                data:
+                  id: "aa0e8400-e29b-41d4-a716-446655440005"
+                  book_id: "550e8400-e29b-41d4-a716-446655440000"
+                  title: "Naujas skyrius"
+                  chapter_number: 3
+                  word_count: 45
+                  is_published: false
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+        '404':
+          description: Knyga nerasta
+
+  /books/{bookId}/chapters/{chapterId}:
+    get:
+      tags: [Chapters]
+      summary: Perskaityti skyrių
+      description: Grąžina skyriaus turinį ir užregistruoja skaitymo istoriją
+      security: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Skyriaus turinys
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Skyrius rastas"
+                data:
+                  id: "770e8400-e29b-41d4-a716-446655440002"
+                  book_id: "550e8400-e29b-41d4-a716-446655440000"
+                  title: "Eglė žalčių karalienė"
+                  content: "Seniai seniai, prie Baltijos jūros, gyveno žvejys su savo trimis dukromis..."
+                  chapter_number: 1
+                  word_count: 3500
+                  is_published: true
+                  book_title: "Lietuvos pasakos"
+        '404':
+          description: Skyrius nerastas
+
+    patch:
+      tags: [Chapters]
+      summary: Atnaujinti skyrių
+      description: Tik knygos autorius gali redaguoti
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                chapter_number:
+                  type: integer
+                is_published:
+                  type: boolean
+            example:
+              title: "Atnaujintas skyriaus pavadinimas"
+              is_published: true
+      responses:
+        '200':
+          description: Skyrius atnaujintas
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+        '404':
+          description: Skyrius nerastas
+
+    delete:
+      tags: [Chapters]
+      summary: Ištrinti skyrių
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Skyrius ištrintas
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+        '404':
+          description: Skyrius nerastas
+
+  # ==================== COMMENTS ====================
+  /chapters/{chapterId}/comments:
+    get:
+      tags: [Comments]
+      summary: Gauti skyriaus komentarus
+      security: []
+      parameters:
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Komentarų sąrašas
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Komentarai rasti"
+                data:
+                  comments:
+                    - id: "bb0e8400-e29b-41d4-a716-446655440006"
+                      chapter_id: "770e8400-e29b-41d4-a716-446655440002"
+                      user_id: "550e8400-e29b-41d4-a716-446655440000"
+                      username: "skaitytojas123"
+                      content: "Labai graži pasaka!"
+                      created_at: "2025-01-15T14:30:00Z"
+                    - id: "cc0e8400-e29b-41d4-a716-446655440007"
+                      chapter_id: "770e8400-e29b-41d4-a716-446655440002"
+                      user_id: "660e8400-e29b-41d4-a716-446655440001"
+                      username: "kitas_skaitytojas"
+                      content: "Prisimenu šią pasaką iš vaikystės"
+                      created_at: "2025-01-16T10:00:00Z"
+
+    post:
+      tags: [Comments]
+      summary: Pridėti komentarą
+      description: Tik registruoti vartotojai gali komentuoti
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+            example:
+              content: "Puikus skyrius, laukiu tęsinio!"
+      responses:
+        '201':
+          description: Komentaras pridėtas
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Komentaras pridėtas"
+                data:
+                  id: "dd0e8400-e29b-41d4-a716-446655440008"
+                  chapter_id: "770e8400-e29b-41d4-a716-446655440002"
+                  user_id: "550e8400-e29b-41d4-a716-446655440000"
+                  content: "Puikus skyrius, laukiu tęsinio!"
+                  created_at: "2025-01-20T11:00:00Z"
+        '401':
+          description: Neautorizuota
+        '404':
+          description: Skyrius nerastas
+
+  /comments/{commentId}:
+    get:
+      tags: [Comments]
+      summary: Gauti komentarą pagal ID
+      security: []
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Komentaras
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Komentaras rastas"
+                data:
+                  id: "bb0e8400-e29b-41d4-a716-446655440006"
+                  chapter_id: "770e8400-e29b-41d4-a716-446655440002"
+                  user_id: "550e8400-e29b-41d4-a716-446655440000"
+                  username: "skaitytojas123"
+                  content: "Labai graži pasaka!"
+                  created_at: "2025-01-15T14:30:00Z"
+        '404':
+          description: Komentaras nerastas
+
+    patch:
+      tags: [Comments]
+      summary: Redaguoti komentarą
+      description: Tik komentaro savininkas gali redaguoti
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+            example:
+              content: "Atnaujintas komentaro tekstas"
+      responses:
+        '200':
+          description: Komentaras atnaujintas
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama (ne savininkas)
+        '404':
+          description: Komentaras nerastas
+
+    delete:
+      tags: [Comments]
+      summary: Ištrinti komentarą
+      description: Savininkas arba admin gali ištrinti
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Komentaras ištrintas
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+        '404':
+          description: Komentaras nerastas
+
+  # ==================== COLLECTIONS ====================
+  /users/{userId}/collections:
+    get:
+      tags: [Collections]
+      summary: Gauti vartotojo mėgstamų knygų sąrašą
+      security: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Kolekcijos knygos
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Kolekcija rasta"
+                data:
+                  collections:
+                    - id: "ee0e8400-e29b-41d4-a716-446655440009"
+                      user_id: "550e8400-e29b-41d4-a716-446655440000"
+                      book_id: "550e8400-e29b-41d4-a716-446655440000"
+                      book_title: "Lietuvos pasakos"
+                      book_author: "jonas_rašytojas"
+                      created_at: "2025-01-10T08:00:00Z"
+
+    post:
+      tags: [Collections]
+      summary: Pridėti knygą į mėgstamiausias
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [book_id]
+              properties:
+                book_id:
+                  type: string
+                  format: uuid
+            example:
+              book_id: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '201':
+          description: Knyga pridėta į kolekciją
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Pridėta į kolekciją"
+                data:
+                  id: "ff0e8400-e29b-41d4-a716-446655440010"
+                  user_id: "550e8400-e29b-41d4-a716-446655440000"
+                  book_id: "550e8400-e29b-41d4-a716-446655440000"
+        '401':
+          description: Neautorizuota
+        '404':
+          description: Knyga nerasta
+
+  /users/{userId}/collections/{bookId}:
+    delete:
+      tags: [Collections]
+      summary: Pašalinti knygą iš mėgstamiausių
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Knyga pašalinta iš kolekcijos
+        '401':
+          description: Neautorizuota
+        '404':
+          description: Įrašas nerastas
+
+  # ==================== STATS ====================
+  /authors/{authorId}/stats:
+    get:
+      tags: [Stats]
+      summary: Gauti autoriaus statistiką
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: authorId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Autoriaus statistika
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Statistika"
+                data:
+                  total_books: 5
+                  total_chapters: 25
+                  total_readers: 150
+                  total_comments: 42
+                  most_read_book:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    title: "Lietuvos pasakos"
+                    read_count: 89
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+
+  /users/{userId}/history:
+    get:
+      tags: [Stats]
+      summary: Gauti vartotojo skaitymo istoriją
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Skaitymo istorija
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Skaitymo istorija"
+                data:
+                  history:
+                    - id: "110e8400-e29b-41d4-a716-446655440011"
+                      user_id: "550e8400-e29b-41d4-a716-446655440000"
+                      chapter_id: "770e8400-e29b-41d4-a716-446655440002"
+                      book_id: "550e8400-e29b-41d4-a716-446655440000"
+                      book_title: "Lietuvos pasakos"
+                      chapter_title: "Eglė žalčių karalienė"
+                      last_read_at: "2025-01-19T20:30:00Z"
+        '401':
+          description: Neautorizuota
+
+  # ==================== ADMIN ====================
+  /admin/stats:
+    get:
+      tags: [Admin]
+      summary: Gauti platformos statistiką
+      description: Tik administratoriams
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Platformos statistika
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Dashboard statistika"
+                data:
+                  total_users: 250
+                  total_books: 45
+                  total_chapters: 180
+                  total_comments: 520
+                  users_by_role:
+                    user: 200
+                    author: 48
+                    admin: 2
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama (ne admin)
+
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: Gauti visų vartotojų sąrašą
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Vartotojų sąrašas
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Vartotojai"
+                data:
+                  users:
+                    - id: "550e8400-e29b-41d4-a716-446655440000"
+                      email: "vartotojas@example.com"
+                      username: "skaitytojas123"
+                      role: "user"
+                      created_at: "2025-01-05T12:00:00Z"
+
+  /admin/users/{userId}/role:
+    patch:
+      tags: [Admin]
+      summary: Pakeisti vartotojo rolę
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role:
+                  type: string
+                  enum: [user, author, admin]
+            example:
+              role: "author"
+      responses:
+        '200':
+          description: Rolė pakeista
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+        '404':
+          description: Vartotojas nerastas
+
+  /admin/users/{userId}:
+    delete:
+      tags: [Admin]
+      summary: Ištrinti vartotoją
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Vartotojas ištrintas
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+
+  /admin/books:
+    get:
+      tags: [Admin]
+      summary: Gauti visų knygų sąrašą (moderavimui)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Visos knygos
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Visos knygos"
+                data:
+                  books:
+                    - id: "550e8400-e29b-41d4-a716-446655440000"
+                      title: "Lietuvos pasakos"
+                      author_username: "jonas_rašytojas"
+                      status: "published"
+
+  /admin/books/{bookId}:
+    delete:
+      tags: [Admin]
+      summary: Ištrinti knygą (moderavimas)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Knyga ištrinta
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+
+  /admin/comments:
+    get:
+      tags: [Admin]
+      summary: Gauti visų komentarų sąrašą (moderavimui)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Visi komentarai
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Visi komentarai"
+                data:
+                  comments:
+                    - id: "bb0e8400-e29b-41d4-a716-446655440006"
+                      username: "skaitytojas123"
+                      content: "Labai graži pasaka!"
+                      chapter_title: "Eglė žalčių karalienė"
+                      book_title: "Lietuvos pasakos"
+
+  /admin/comments/{commentId}:
+    delete:
+      tags: [Admin]
+      summary: Ištrinti komentarą (moderavimas)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Komentaras ištrintas
+        '401':
+          description: Neautorizuota
+        '403':
+          description: Draudžiama
+
+  # ==================== UPLOAD ====================
+  /upload:
+    post:
+      tags: [Upload]
+      summary: Įkelti paveikslėlį
+      description: Įkelia paveikslėlį ir grąžina URL
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Paveikslėlis įkeltas
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Paveikslėlis įkeltas"
+                data:
+                  url: "https://s3.amazonaws.com/skaitomanas/uploads/abc123.jpg"
+        '400':
+          description: Netinkamas failas
+        '401':
+          description: Neautorizuota

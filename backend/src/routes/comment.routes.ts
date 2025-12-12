@@ -9,6 +9,34 @@ export async function commentRoutes(
   commentController: CommentController
 ): Promise<void> {
   fastify.get(
+    '/comments/:commentId',
+    {
+      schema: {
+        tags: ['Comments'],
+        description: 'Gauti komentarą pagal ID',
+        params: {
+          type: 'object',
+          required: ['commentId'],
+          properties: {
+            commentId: { type: 'string', format: 'uuid' },
+          },
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              message: { type: 'string' },
+              data: { type: 'object', additionalProperties: true },
+            },
+          },
+        },
+      },
+    },
+    commentController.getCommentById.bind(commentController)
+  );
+
+  fastify.get(
     '/chapters/:chapterId/comments',
     {
       schema: {

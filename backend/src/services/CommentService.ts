@@ -8,7 +8,15 @@ export class CommentService {
   constructor(
     private commentRepository: CommentRepository,
     private chapterRepository: ChapterRepository
-  ) {}
+  ) { }
+
+  async getCommentById(commentId: string): Promise<CommentWithUser> {
+    const comment = await this.commentRepository.findByIdWithUser(commentId);
+    if (!comment) {
+      throw new NotFoundError(messages.comment.notFound);
+    }
+    return comment;
+  }
 
   async createComment(chapterId: string, userId: string, content: string): Promise<Comment> {
     const chapter = await this.chapterRepository.findById(chapterId);

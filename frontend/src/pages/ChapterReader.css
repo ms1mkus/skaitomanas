@@ -1,0 +1,84 @@
+.chapter-html-content h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.chapter-html-content h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.chapter-html-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.chapter-html-content p {
+    margin-bottom: 1.25em;
+}
+
+.chapter-html-content blockquote {
+    border-left: 3px solid var(--mantine-color-blue-6);
+    margin: 1.5rem 0;
+    padding: 0.75rem 1.5rem;
+    font-style: italic;
+    color: var(--mantine-color-gray-5);
+    background: var(--mantine-color-dark-7);
+    border-radius: 0 var(--mantine-radius-sm) var(--mantine-radius-sm) 0;
+}
+
+.chapter-html-content hr {
+    border: none;
+    border-top: 1px solid var(--mantine-color-dark-5);
+    margin: 2rem auto;
+    width: 50%;
+}
+
+.chapter-html-content ul,
+.chapter-html-content ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.chapter-html-content li {
+    margin-bottom: 0.5rem;
+}
+
+.chapter-html-content strong {
+    font-weight: 700;
+}
+
+.chapter-html-content em {
+    font-style: italic;
+}
+
+.chapter-html-content u {
+    text-decoration: underline;
+}
+
+.chapter-html-content s {
+    text-decoration: line-through;
+}
+
+.chapter-html-content a {
+    color: var(--mantine-color-blue-5);
+    text-decoration: underline;
+}
+
+.chapter-html-content a:hover {
+    color: var(--mantine-color-blue-4);
+}
+
+.chapter-html-content mark {
+    background-color: var(--mantine-color-yellow-6);
+    color: var(--mantine-color-dark-9);
+    padding: 0 0.25rem;
+    border-radius: 2px;
+}

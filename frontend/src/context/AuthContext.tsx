@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { logout as logoutApi, getMe } from '../api/auth';
 
 interface User {
     id: string;
@@ -9,8 +10,8 @@ interface User {
 
 interface AuthContextType {
     user: User | null;
-    login: (token: string, user: User) => void;
-    logout: () => void;
+    login: (accessToken: string, refreshToken: string, user: User) => void;
+    logout: () => Promise<void>;
     loading: boolean;
 }
 
@@ -21,22 +22,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const userStr = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
-        if (userStr && token) {
-            setUser(JSON.parse(userStr));
-        }
-        setLoading(false);
+        const initAuth = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const userData = await getMe();
+                    setUser(userData);
+                } catch {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('user');
+                }
+            }
+            setLoading(false);
+        };
+        initAuth();
     }, []);
 
-    const login = (token: string, userData: User) => {
-        localStorage.setItem('token', token);
+    const login = (accessToken: string, refreshToken: string, userData: User) => {
+        localStorage.setItem('token', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
     };
 
-    const logout = () => {
+    const logout = async () => {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+            try {
+                await logoutApi(refreshToken);
+            } catch {
+            }
+        }
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
         setUser(null);
     };

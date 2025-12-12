@@ -1,18 +1,27 @@
-import { Container, Title, Button, Table, Group, ActionIcon, Modal, TextInput, Textarea, Loader, Center, Stack, Checkbox, NumberInput } from '@mantine/core';
+import { Container, Title, Button, Table, Group, ActionIcon, Modal, TextInput, Loader, Center, Stack, Checkbox, NumberInput } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { client } from '../api/client';
 import { useNavigate, useParams } from 'react-router-dom';
 import { IconEdit, IconTrash, IconPlus, IconArrowLeft } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
+import { ChapterEditor } from '../components/RichTextEditor/ChapterEditor';
+
+interface Chapter {
+    id: string;
+    title: string;
+    content: string;
+    chapter_number: number;
+    word_count: number;
+    is_published: boolean;
+}
 
 export function ChapterManager() {
     const { bookId } = useParams();
-    const [chapters, setChapters] = useState<any[]>([]);
+    const [chapters, setChapters] = useState<Chapter[]>([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const [opened, { open, close }] = useDisclosure(false);
 
-    // Form state
     const [editingChapterId, setEditingChapterId] = useState<string | null>(null);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -70,7 +79,7 @@ export function ChapterManager() {
         }
     };
 
-    const openEdit = (chapter: any) => {
+    const openEdit = (chapter: Chapter) => {
         setEditingChapterId(chapter.id);
         setTitle(chapter.title);
         setContent(chapter.content);
@@ -86,6 +95,8 @@ export function ChapterManager() {
         setChapterNumber(chapters.length + 1);
         setIsPublished(true);
     };
+
+    const getPageCount = (wordCount: number) => Math.ceil(wordCount / 250);
 
     if (loading) {
         return <Center h="50vh"><Loader /></Center>;
@@ -109,6 +120,7 @@ export function ChapterManager() {
                     <Table.Tr>
                         <Table.Th>Nr.</Table.Th>
                         <Table.Th>Pavadinimas</Table.Th>
+                        <Table.Th>Puslapių</Table.Th>
                         <Table.Th>Statusas</Table.Th>
                         <Table.Th>Veiksmai</Table.Th>
                     </Table.Tr>
@@ -118,6 +130,7 @@ export function ChapterManager() {
                         <Table.Tr key={chapter.id}>
                             <Table.Td>{chapter.chapter_number}</Table.Td>
                             <Table.Td>{chapter.title}</Table.Td>
+                            <Table.Td>{getPageCount(chapter.word_count || 0)} psl.</Table.Td>
                             <Table.Td>{chapter.is_published ? 'Publikuota' : 'Juodraštis'}</Table.Td>
                             <Table.Td>
                                 <Group gap="xs">
@@ -134,13 +147,46 @@ export function ChapterManager() {
                 </Table.Tbody>
             </Table>
 
-            <Modal opened={opened} onClose={close} title={editingChapterId ? "Redaguoti skyrių" : "Naujas skyrius"} size="lg">
+            <Modal
+                opened={opened}
+                onClose={close}
+                title={editingChapterId ? "Redaguoti skyrių" : "Naujas skyrius"}
+                size="xl"
+                fullScreen
+            >
                 <Stack>
-                    <NumberInput label="Skyriaus numeris" required value={chapterNumber} onChange={setChapterNumber} />
-                    <TextInput label="Pavadinimas" required value={title} onChange={(e) => setTitle(e.target.value)} />
-                    <Textarea label="Turinys" required minRows={10} value={content} onChange={(e) => setContent(e.target.value)} />
-                    <Checkbox label="Publikuoti" checked={isPublished} onChange={(e) => setIsPublished(e.currentTarget.checked)} />
-                    <Button onClick={handleSubmit}>Išsaugoti</Button>
+                    <Group grow>
+                        <NumberInput
+                            label="Skyriaus numeris"
+                            required
+                            value={chapterNumber}
+                            onChange={setChapterNumber}
+                            min={1}
+                        />
+                        <TextInput
+                            label="Pavadinimas"
+                            required
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
+                    </Group>
+
+                    <ChapterEditor
+                        content={content}
+                        onChange={setContent}
+                        placeholder="Pradėkite rašyti skyriaus turinį..."
+                    />
+
+                    <Checkbox
+                        label="Publikuoti"
+                        checked={isPublished}
+                        onChange={(e) => setIsPublished(e.currentTarget.checked)}
+                    />
+
+                    <Group justify="flex-end">
+                        <Button variant="default" onClick={close}>Atšaukti</Button>
+                        <Button onClick={handleSubmit}>Išsaugoti</Button>
+                    </Group>
                 </Stack>
             </Modal>
         </Container>

@@ -31,7 +31,8 @@ export function Login() {
 
         try {
             const response = await client.post('/auth/login', data);
-            login(response.data.data.accessToken, response.data.data.user);
+            const { accessToken, refreshToken, user } = response.data.data;
+            login(accessToken, refreshToken, user);
             navigate('/books');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Nepavyko prisijungti');

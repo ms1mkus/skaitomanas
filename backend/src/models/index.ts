@@ -34,6 +34,7 @@ export interface Chapter {
   title: string;
   content: string;
   chapter_number: number;
+  word_count: number;
   is_published: boolean;
   created_at: Date;
   updated_at: Date;
@@ -61,7 +62,7 @@ export interface ReadingHistory {
   chapter_id: string;
   book_id: string;
   last_read_at: Date;
-  progress_percentage: number;
+  pages_read: number;
 }
 
 export interface BookWithAuthor extends Book {

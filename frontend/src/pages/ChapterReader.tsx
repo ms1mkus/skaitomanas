@@ -1,8 +1,10 @@
-import { Container, Title, Text, Paper, Button, Group, Loader, Center, Stack, Divider, Textarea } from '@mantine/core';
+import { Container, Title, Text, Paper, Button, Group, Loader, Center, Stack, Divider, Textarea, ActionIcon, Modal } from '@mantine/core';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { client } from '../api/client';
-import { IconArrowLeft } from '@tabler/icons-react';
+import { IconArrowLeft, IconEdit, IconTrash } from '@tabler/icons-react';
+import { useDisclosure } from '@mantine/hooks';
+import './ChapterReader.css';
 
 interface Chapter {
     id: string;
@@ -12,6 +14,14 @@ interface Chapter {
     book_id: string;
 }
 
+interface Comment {
+    id: string;
+    content: string;
+    username: string;
+    user_id: string;
+    created_at: string;
+}
+
 export function ChapterReader() {
     const { bookId, chapterId } = useParams();
     const navigate = useNavigate();
@@ -19,9 +29,12 @@ export function ChapterReader() {
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [comments, setComments] = useState<any[]>([]);
+    const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState('');
     const [user, setUser] = useState<any>(null);
+    const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false);
+    const [editingComment, setEditingComment] = useState<Comment | null>(null);
+    const [editContent, setEditContent] = useState('');
 
     useEffect(() => {
         const userStr = localStorage.getItem('user');
@@ -86,6 +99,39 @@ export function ChapterReader() {
         }
     };
 
+    const handleEditComment = (comment: Comment) => {
+        setEditingComment(comment);
+        setEditContent(comment.content);
+        openEdit();
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editingComment || !editContent.trim()) return;
+        try {
+            await client.patch(`/comments/${editingComment.id}`, { content: editContent });
+            closeEdit();
+            setEditingComment(null);
+            fetchComments();
+        } catch (err) {
+            console.error('Failed to update comment', err);
+        }
+    };
+
+    const handleDeleteComment = async (commentId: string) => {
+        if (!window.confirm('Ar tikrai norite ištrinti šį komentarą?')) return;
+        try {
+            await client.delete(`/comments/${commentId}`);
+            fetchComments();
+        } catch (err) {
+            console.error('Failed to delete comment', err);
+        }
+    };
+
+    const canModifyComment = (comment: Comment) => {
+        if (!user) return false;
+        return comment.user_id === user.id || user.role === 'admin';
+    };
+
     const sortedChapters = chapters.sort((a, b) => a.order_index - b.order_index);
     const currentIndex = sortedChapters.findIndex(c => c.id === chapterId);
     const prevChapter = sortedChapters[currentIndex - 1];
@@ -126,19 +172,20 @@ export function ChapterReader() {
                 </Text>
             </Group>
 
-            <Paper p="xl" shadow="sm" radius="md" withBorder mb="xl">
+            <Paper p="xl" shadow="sm" radius="md" withBorder mb="xl" className="chapter-reader-content">
                 <Title order={2} ta="center" mb="lg" style={{ fontFamily: 'Georgia, serif' }}>{chapter.title}</Title>
                 <Divider mb="xl" />
-                <Text
-                    size="lg"
+                <div
+                    className="chapter-html-content"
                     style={{
-                        whiteSpace: 'pre-wrap',
-                        lineHeight: 1.8,
                         fontFamily: 'Georgia, serif',
+                        fontSize: '1.125rem',
+                        lineHeight: 1.9,
+                        maxWidth: 700,
+                        margin: '0 auto',
                     }}
-                >
-                    {chapter.content}
-                </Text>
+                    dangerouslySetInnerHTML={{ __html: chapter.content }}
+                />
             </Paper>
 
             <Group justify="space-between" mb="xl">
@@ -199,7 +246,19 @@ export function ChapterReader() {
                         <Paper p="md" withBorder radius="md" style={{ flex: 1 }}>
                             <Group justify="space-between" mb={4}>
                                 <Text fw={600} size="sm">{comment.username}</Text>
-                                <Text size="xs" c="dimmed">{new Date(comment.created_at).toLocaleDateString()}</Text>
+                                <Group gap="xs">
+                                    <Text size="xs" c="dimmed">{new Date(comment.created_at).toLocaleDateString()}</Text>
+                                    {canModifyComment(comment) && (
+                                        <>
+                                            <ActionIcon size="sm" variant="subtle" color="blue" onClick={() => handleEditComment(comment)}>
+                                                <IconEdit size={14} />
+                                            </ActionIcon>
+                                            <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleDeleteComment(comment.id)}>
+                                                <IconTrash size={14} />
+                                            </ActionIcon>
+                                        </>
+                                    )}
+                                </Group>
                             </Group>
                             <Text size="sm" style={{ lineHeight: 1.5 }}>{comment.content}</Text>
                         </Paper>
@@ -208,7 +267,21 @@ export function ChapterReader() {
 
                 {comments.length === 0 && <Text c="dimmed" ta="center" size="sm">Komentarų dar nėra.</Text>}
             </Stack>
+
+            <Modal opened={editOpened} onClose={closeEdit} title="Redaguoti komentarą">
+                <Stack>
+                    <Textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        minRows={3}
+                        autosize
+                    />
+                    <Group justify="flex-end">
+                        <Button variant="default" onClick={closeEdit}>Atšaukti</Button>
+                        <Button onClick={handleSaveEdit} disabled={!editContent.trim()}>Išsaugoti</Button>
+                    </Group>
+                </Stack>
+            </Modal>
         </Container>
     );
 }
-
